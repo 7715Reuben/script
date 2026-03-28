@@ -32,7 +32,7 @@ Output only the response. No preamble.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, content, portrait } = await req.json();
+    const { type, content, portrait, pronouns = "she" } = await req.json();
 
     if (!content || !portrait || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -40,19 +40,23 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 800));
-      return NextResponse.json({
-        response: type === "morning" ? MOCK_MORNING : MOCK_EVENING,
-      });
+      const mockBase = type === "morning" ? MOCK_MORNING : MOCK_EVENING;
+      const mock = pronouns === "he"
+        ? mockBase.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He")
+        : mockBase;
+      return NextResponse.json({ response: mock });
     }
 
     const Anthropic = (await import("@anthropic-ai/sdk")).default;
     const client = new Anthropic();
 
-    const systemPrompt = type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM;
+    const pronounLine = pronouns === "he" ? "Use he/him pronouns." : "Use she/her pronouns.";
+    const systemPrompt = (type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM) + "\n\n" + pronounLine;
+    const poss = pronouns === "he" ? "His" : "Her";
     const userMessage =
       type === "morning"
-        ? `Her identity portrait:\n${portrait}\n\nHer morning intention:\n${content}`
-        : `Her identity portrait:\n${portrait}\n\nHer evening reflection:\n${content}`;
+        ? `${poss} identity portrait:\n${portrait}\n\n${poss} morning intention:\n${content}`
+        : `${poss} identity portrait:\n${portrait}\n\n${poss} evening reflection:\n${content}`;
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",

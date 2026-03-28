@@ -37,7 +37,7 @@ Output only the portrait text. No preamble. No closing note. Just the portrait, 
 
 export async function POST(req: NextRequest) {
   try {
-    const { rawScript } = await req.json();
+    const { rawScript, pronouns = "she" } = await req.json();
 
     if (!rawScript || rawScript.trim().length < 10) {
       return NextResponse.json({ error: "Too short" }, { status: 400 });
@@ -45,17 +45,24 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 2200));
-      return NextResponse.json({ portrait: MOCK_PORTRAIT });
+      const mock = pronouns === "he"
+        ? MOCK_PORTRAIT.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bherself\b/g, "himself").replace(/\bHer\b/g, "His").replace(/\bShe\b/g, "He")
+        : MOCK_PORTRAIT;
+      return NextResponse.json({ portrait: mock });
     }
 
     const Anthropic = (await import("@anthropic-ai/sdk")).default;
     const client = new Anthropic();
 
+    const pronounLine = pronouns === "he"
+      ? "Use he/him/his pronouns throughout."
+      : "Use she/her/hers pronouns throughout.";
+
     const message = await client.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 800,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: `Here is what she wrote:\n\n${rawScript}` }],
+      system: SYSTEM_PROMPT + "\n\n" + pronounLine,
+      messages: [{ role: "user", content: `Here is what they wrote:\n\n${rawScript}` }],
     });
 
     const portrait = message.content[0].type === "text" ? message.content[0].text : "";
