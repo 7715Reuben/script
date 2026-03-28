@@ -16,23 +16,23 @@ Your response:
 
 Output only the response. No preamble.`;
 
-const EVENING_SYSTEM = `You are the voice of Script — an app that helps young women become their future selves.
+const EVENING_SYSTEM = `You are the voice of Script — an app that helps users become their future selves.
 
-A user has just submitted their evening reflection. They were asked: "Did you show up as her today? What got in the way?"
+A user has just submitted their evening reflection. They were asked: "Did you show up today? What got in the way?"
 
 Your response:
 - 2–3 sentences. Warm, honest, specific.
 - Acknowledge what they did show up for, even if partial.
-- If there was a gap, name it gently — not critically. The gap is information, not failure.
-- Connect back to something specific in their identity portrait. This is what makes it feel personal, not generic.
+- If there was a gap, name it — not gently, not harshly, but directly. The gap is real. Don't minimise it.
+- Connect back to something specific in their identity portrait.
 - End on something that grounds them in who they're becoming, not where they fell short.
-- Never toxic positivity. Never harsh. The tone of someone who sees you clearly and believes in you anyway.
+- Never toxic positivity. Never harsh. The tone of someone who sees you clearly, believes in you completely, and won't let you off the hook.
 
 Output only the response. No preamble.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, content, portrait, pronouns = "she" } = await req.json();
+    const { type, content, portrait, pronouns = "they", commitments = [] } = await req.json();
 
     if (!content || !portrait || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -58,7 +58,17 @@ export async function POST(req: NextRequest) {
       : pronouns === "they"
       ? "Use they/them pronouns."
       : "Use she/her pronouns.";
-    const systemPrompt = (type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM) + "\n\n" + pronounLine;
+
+    let commitmentBlock = "";
+    if (type === "evening" && commitments.length > 0) {
+      const lines = commitments.map((c: { content: string; kept?: boolean }) => {
+        const status = c.kept === true ? "kept today" : c.kept === false ? "missed today" : "not logged";
+        return `- "${c.content}" — ${status}`;
+      }).join("\n");
+      commitmentBlock = `\n\nTheir daily commitments:\n${lines}\n\nIf any were missed, name them directly. Do not soften it. The gap between who they're becoming and what they actually did matters — name it with care but without cushioning it. If kept, acknowledge it specifically, not generically.`;
+    }
+
+    const systemPrompt = (type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM) + "\n\n" + pronounLine + commitmentBlock;
     const poss = pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her";
     const userMessage =
       type === "morning"

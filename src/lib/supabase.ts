@@ -26,7 +26,7 @@ export type Checkin = {
   type: "morning" | "evening";
   content: string;
   ai_response: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   created_at: string;
 };
 
@@ -34,6 +34,23 @@ export type WeeklyReflection = {
   id: string;
   user_id: string;
   content: string;
-  week_start: string; // YYYY-MM-DD Monday
+  week_start: string;
+  created_at: string;
+};
+
+export type Commitment = {
+  id: string;
+  user_id: string;
+  content: string;
+  position: number;
+  created_at: string;
+};
+
+export type CommitmentLog = {
+  id: string;
+  user_id: string;
+  commitment_id: string;
+  date: string;
+  kept: boolean;
   created_at: string;
 };

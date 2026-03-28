@@ -7,13 +7,15 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { createClient } from "@/lib/supabase";
-import type { Profile, Checkin, WeeklyReflection, Pronouns } from "@/lib/supabase";
-import { isMorning, P, cn } from "@/lib/utils";
+import type { Profile, Checkin, WeeklyReflection, Pronouns, Commitment, CommitmentLog } from "@/lib/supabase";
+import { isMorning, P, cn, getTodayString } from "@/lib/utils";
 
 interface HomeClientProps {
   profile: Profile;
   todaysCheckins: Checkin[];
   weeklyReflection: WeeklyReflection | null;
+  commitments: Commitment[];
+  todaysLogs: CommitmentLog[];
 }
 
 const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
@@ -22,7 +24,7 @@ const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
   { value: "he", label: "he / him" },
 ];
 
-export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeClientProps) {
+export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitments, todaysLogs }: HomeClientProps) {
   const morning = isMorning();
   const router = useRouter();
   const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
@@ -36,7 +38,6 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
 
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
   const lastCheckin = todaysCheckins[todaysCheckins.length - 1];
-
   const paletteEvent = weeklyReflection ? "weekly" : "base";
 
   async function handlePronounChange(next: Pronouns) {
@@ -44,10 +45,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
     setSavingPronouns(true);
     setPronouns(next);
     const supabase = createClient();
-    await supabase
-      .from("profiles")
-      .update({ pronouns: next })
-      .eq("id", profile.id);
+    await supabase.from("profiles").update({ pronouns: next }).eq("id", profile.id);
     setSavingPronouns(false);
   }
 
@@ -105,7 +103,14 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
 
           <div className="divider" />
 
-          {/* Pronouns selector */}
+          <CommitmentsSection
+            commitments={commitments}
+            todaysLogs={todaysLogs}
+            userId={profile.user_id}
+          />
+
+          <div className="divider" />
+
           <section className="space-y-3">
             <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
               Pronouns
@@ -140,6 +145,106 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
         </div>
       </AppShell>
     </PaletteWrapper>
+  );
+}
+
+type LogMap = Record<string, boolean | undefined>;
+
+function CommitmentsSection({
+  commitments,
+  todaysLogs,
+  userId,
+}: {
+  commitments: Commitment[];
+  todaysLogs: CommitmentLog[];
+  userId: string;
+}) {
+  const initial: LogMap = {};
+  todaysLogs.forEach((l) => { initial[l.commitment_id] = l.kept; });
+
+  const [logs, setLogs] = useState<LogMap>(initial);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  async function handleToggle(commitmentId: string) {
+    if (saving) return;
+    setSaving(commitmentId);
+
+    const current = logs[commitmentId];
+    const next = current === undefined ? true : current === true ? false : undefined;
+    setLogs((prev) => ({ ...prev, [commitmentId]: next }));
+
+    const supabase = createClient();
+    if (next === undefined) {
+      await supabase
+        .from("commitment_logs")
+        .delete()
+        .eq("commitment_id", commitmentId)
+        .eq("date", getTodayString());
+    } else {
+      await supabase
+        .from("commitment_logs")
+        .upsert({ user_id: userId, commitment_id: commitmentId, date: getTodayString(), kept: next });
+    }
+    setSaving(null);
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between">
+        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+          Commitments
+        </p>
+        <Link
+          href="/commitments"
+          className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+        >
+          {commitments.length === 0 ? "Set up" : "Edit"}
+        </Link>
+      </div>
+
+      {commitments.length === 0 ? (
+        <p className="text-[0.9375rem] text-ink-faint dark:text-dark-text-secondary leading-relaxed">
+          The things{" "}
+          <Link href="/commitments" className="accent-script text-ink-secondary dark:text-dark-text-secondary">
+            she always does
+          </Link>
+          {" "}&mdash; set them and the AI will hold you to them.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {commitments.map((c) => {
+            const state = logs[c.id];
+            return (
+              <li key={c.id} className="flex items-start gap-4">
+                <button
+                  onClick={() => handleToggle(c.id)}
+                  disabled={saving === c.id}
+                  className="mt-[0.35rem] flex-shrink-0 w-3.5 h-3.5 flex items-center justify-center transition-all duration-150"
+                >
+                  {state === undefined && (
+                    <span className="w-3 h-3 rounded-full border border-ink-faint dark:border-dark-text-secondary block" />
+                  )}
+                  {state === true && (
+                    <span className="w-3 h-3 rounded-full bg-ink dark:bg-dark-text block" />
+                  )}
+                  {state === false && (
+                    <span className="text-[0.6rem] text-ink-faint dark:text-dark-text-secondary leading-none">✕</span>
+                  )}
+                </button>
+                <span className={cn(
+                  "text-[0.9375rem] leading-relaxed transition-colors",
+                  state === false
+                    ? "text-ink-faint dark:text-dark-text-secondary line-through"
+                    : "text-ink dark:text-dark-text"
+                )}>
+                  {c.content}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 

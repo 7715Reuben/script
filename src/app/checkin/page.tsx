@@ -17,7 +17,7 @@ function CheckinContent() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-  const [pronouns, setPronouns] = useState<Pronouns>("she");
+  const [pronouns, setPronouns] = useState<Pronouns>("they");
 
   const paletteEvent: PaletteEvent = done
     ? type === "morning" ? "morning" : "evening"
@@ -33,13 +33,23 @@ function CheckinContent() {
     if (!user) { router.push("/onboarding"); return; }
 
     try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("portrait, pronouns")
-        .eq("user_id", user.id)
-        .single();
+      const [profileRes, commitmentsRes, logsRes] = await Promise.all([
+        supabase.from("profiles").select("portrait, pronouns").eq("user_id", user.id).single(),
+        type === "evening"
+          ? supabase.from("commitments").select("*").eq("user_id", user.id).order("position")
+          : Promise.resolve({ data: [] }),
+        type === "evening"
+          ? supabase.from("commitment_logs").select("*").eq("user_id", user.id).eq("date", getTodayString())
+          : Promise.resolve({ data: [] }),
+      ]);
 
+      const profile = profileRes.data;
       if (profile?.pronouns) setPronouns(profile.pronouns);
+
+      const commitmentContext = (commitmentsRes.data || []).map((c: { id: string; content: string }) => {
+        const log = (logsRes.data || []).find((l: { commitment_id: string; kept: boolean }) => l.commitment_id === c.id);
+        return { content: c.content, kept: log?.kept };
+      });
 
       const res = await fetch("/api/checkin-response", {
         method: "POST",
@@ -48,7 +58,8 @@ function CheckinContent() {
           type,
           content,
           portrait: profile?.portrait || "",
-          pronouns: profile?.pronouns || "she",
+          pronouns: profile?.pronouns || "they",
+          commitments: commitmentContext,
         }),
       });
       const data = await res.json();

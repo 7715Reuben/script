@@ -30,10 +30,12 @@ export default async function HomePage() {
   const today = getTodayString();
   const weekStart = getMondayOfWeek();
 
-  const [profileRes, checkinsRes, weeklyRes] = await Promise.all([
+  const [profileRes, checkinsRes, weeklyRes, commitmentsRes, logsRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("user_id", user.id).single(),
     supabase.from("checkins").select("*").eq("user_id", user.id).eq("date", today),
     supabase.from("weekly_reflections").select("*").eq("user_id", user.id).eq("week_start", weekStart).single(),
+    supabase.from("commitments").select("*").eq("user_id", user.id).order("position"),
+    supabase.from("commitment_logs").select("*").eq("user_id", user.id).eq("date", today),
   ]);
 
   if (!profileRes.data) redirect("/onboarding");
@@ -43,6 +45,8 @@ export default async function HomePage() {
       profile={profileRes.data}
       todaysCheckins={checkinsRes.data || []}
       weeklyReflection={weeklyRes.data || null}
+      commitments={commitmentsRes.data || []}
+      todaysLogs={logsRes.data || []}
     />
   );
 }
