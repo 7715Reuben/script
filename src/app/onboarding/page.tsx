@@ -16,6 +16,7 @@ export default function OnboardingPage() {
   const [pronouns] = useState<Pronouns>("they");
   const [rawScript, setRawScript] = useState("");
   const [portrait, setPortrait] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -66,6 +67,7 @@ export default function OnboardingPage() {
         raw_script: rawScript,
         portrait,
         pronouns,
+        name: name.trim() || null,
         updated_at: new Date().toISOString(),
       });
 
@@ -103,7 +105,8 @@ export default function OnboardingPage() {
           {step === "portrait" && (
             <PortraitStep
               portrait={portrait}
-              pronouns={pronouns}
+              name={name}
+              onNameChange={setName}
               onEdit={setPortrait}
               onConfirm={() => setStep("auth")}
               onRewrite={() => setStep("write")}
@@ -212,19 +215,20 @@ function GeneratingStep() {
 
 function PortraitStep({
   portrait,
-  pronouns,
+  name,
+  onNameChange,
   onEdit,
   onConfirm,
   onRewrite,
 }: {
   portrait: string;
-  pronouns: Pronouns;
+  name: string;
+  onNameChange: (n: string) => void;
   onEdit: (p: string) => void;
   onConfirm: () => void;
   onRewrite: () => void;
 }) {
-  const obj = P.object(pronouns);
-  const subj = P.subject(pronouns);
+  const ready = name.trim().length > 0;
 
   return (
     <div className="space-y-10 animate-fade-up">
@@ -233,25 +237,46 @@ function PortraitStep({
           Your portrait
         </p>
         <p className="accent-script text-lg text-portrait-accent">
-          This is {obj}.
+          {ready ? `This is ${name.trim()}.` : "This is them."}
         </p>
       </div>
 
       <PortraitDisplay portrait={portrait} editable onSave={onEdit} />
 
-      <div className="space-y-3 pt-4">
-        <button
-          onClick={onConfirm}
-          className="w-full py-4 bg-ink dark:bg-dark-text text-bone dark:text-dark-bg text-sm tracking-widest uppercase"
-        >
-          This is {subj}
-        </button>
-        <button
-          onClick={onRewrite}
-          className="w-full py-3 text-sm text-ink-faint dark:text-dark-text-secondary"
-        >
-          write again
-        </button>
+      <div className="space-y-6 pt-4">
+        <div className="space-y-1">
+          <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+            What&apos;s their name?
+          </p>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="the name they go by"
+            className="w-full bg-transparent text-ink dark:text-dark-text placeholder:text-ink-faint dark:placeholder:text-dark-text-secondary text-[0.9375rem] border-b border-border dark:border-dark-border pb-3 outline-none"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={onConfirm}
+            disabled={!ready}
+            className={cn(
+              "w-full py-4 text-sm tracking-widest uppercase transition-all duration-200",
+              ready
+                ? "bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
+                : "bg-border dark:bg-dark-border text-ink-faint dark:text-dark-text-secondary cursor-not-allowed"
+            )}
+          >
+            {ready ? `This is ${name.trim()}` : "Enter a name to continue"}
+          </button>
+          <button
+            onClick={onRewrite}
+            className="w-full py-3 text-sm text-ink-faint dark:text-dark-text-secondary"
+          >
+            write again
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ export type Profile = {
   raw_script: string;
   portrait: string;
   pronouns: Pronouns;
+  name: string | null;
   created_at: string;
   updated_at: string;
 };
