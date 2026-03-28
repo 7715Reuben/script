@@ -41,18 +41,25 @@ export async function POST(req: NextRequest) {
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 800));
       const mockBase = type === "morning" ? MOCK_MORNING : MOCK_EVENING;
-      const mock = pronouns === "he"
-        ? mockBase.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He")
-        : mockBase;
+      let mock = mockBase;
+      if (pronouns === "he") {
+        mock = mock.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He");
+      } else if (pronouns === "they") {
+        mock = mock.replace(/\bshe\b/g, "they").replace(/\bher\b/g, "them").replace(/\bShe\b/g, "They");
+      }
       return NextResponse.json({ response: mock });
     }
 
     const Anthropic = (await import("@anthropic-ai/sdk")).default;
     const client = new Anthropic();
 
-    const pronounLine = pronouns === "he" ? "Use he/him pronouns." : "Use she/her pronouns.";
+    const pronounLine = pronouns === "he"
+      ? "Use he/him pronouns."
+      : pronouns === "they"
+      ? "Use they/them pronouns."
+      : "Use she/her pronouns.";
     const systemPrompt = (type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM) + "\n\n" + pronounLine;
-    const poss = pronouns === "he" ? "His" : "Her";
+    const poss = pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her";
     const userMessage =
       type === "morning"
         ? `${poss} identity portrait:\n${portrait}\n\n${poss} morning intention:\n${content}`

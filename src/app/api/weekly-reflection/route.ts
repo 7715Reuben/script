@@ -30,7 +30,7 @@ Output only the reflection. No heading. No preamble.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { portrait, checkins } = await req.json();
+    const { portrait, checkins, pronouns = "she" } = await req.json();
 
     if (!portrait || !checkins || checkins.length === 0) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
@@ -38,7 +38,13 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 1200));
-      return NextResponse.json({ reflection: MOCK_REFLECTION });
+      let mock = MOCK_REFLECTION;
+      if (pronouns === "he") {
+        mock = mock.replace(/\bherself\b/g, "himself").replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He").replace(/\bHer\b/g, "His");
+      } else if (pronouns === "they") {
+        mock = mock.replace(/\bherself\b/g, "themselves").replace(/\bshe\b/g, "they").replace(/\bher\b/g, "them").replace(/\bShe\b/g, "They").replace(/\bHer\b/g, "Their");
+      }
+      return NextResponse.json({ reflection: mock });
     }
 
     const Anthropic = (await import("@anthropic-ai/sdk")).default;
@@ -57,7 +63,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Her identity portrait:\n${portrait}\n\nThis week's check-ins:\n${checkinsText}`,
+          content: `${pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her"} identity portrait:\n${portrait}\n\nThis week's check-ins:\n${checkinsText}`,
         },
       ],
     });

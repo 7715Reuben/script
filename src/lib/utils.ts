@@ -27,13 +27,13 @@ export function isSunday(): boolean {
 }
 
 // Pronoun helpers — used everywhere in UI and AI prompts
-export type Pronouns = "she" | "he";
+export type Pronouns = "she" | "he" | "they";
 
 export const P = {
-  subject: (p: Pronouns) => p === "she" ? "she" : "he",
-  object: (p: Pronouns) => p === "she" ? "her" : "him",
-  possessive: (p: Pronouns) => p === "she" ? "her" : "his",
-  reflexive: (p: Pronouns) => p === "she" ? "herself" : "himself",
-  portrait: (p: Pronouns) => p === "she" ? "Her portrait" : "His portrait",
-  portraitLower: (p: Pronouns) => p === "she" ? "her portrait" : "his portrait",
+  subject: (p: Pronouns) => p === "she" ? "she" : p === "he" ? "he" : "they",
+  object: (p: Pronouns) => p === "she" ? "her" : p === "he" ? "him" : "them",
+  possessive: (p: Pronouns) => p === "she" ? "her" : p === "he" ? "his" : "their",
+  reflexive: (p: Pronouns) => p === "she" ? "herself" : p === "he" ? "himself" : "themselves",
+  portrait: (p: Pronouns) => p === "she" ? "Her portrait" : p === "he" ? "His portrait" : "Their portrait",
+  portraitLower: (p: Pronouns) => p === "she" ? "her portrait" : p === "he" ? "his portrait" : "their portrait",
 };

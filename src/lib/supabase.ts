@@ -7,7 +7,7 @@ export function createClient() {
   );
 }
 
-export type Pronouns = "she" | "he";
+export type Pronouns = "she" | "he" | "they";
 
 export type Profile = {
   id: string;

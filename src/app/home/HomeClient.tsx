@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
-import type { Profile, Checkin, WeeklyReflection } from "@/lib/supabase";
-import { isMorning, P } from "@/lib/utils";
+import { createClient } from "@/lib/supabase";
+import type { Profile, Checkin, WeeklyReflection, Pronouns } from "@/lib/supabase";
+import { isMorning, P, cn } from "@/lib/utils";
 
 interface HomeClientProps {
   profile: Profile;
@@ -13,14 +15,33 @@ interface HomeClientProps {
   weeklyReflection: WeeklyReflection | null;
 }
 
+const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
+  { value: "she", label: "she / her" },
+  { value: "they", label: "they / them" },
+  { value: "he", label: "he / him" },
+];
+
 export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeClientProps) {
   const morning = isMorning();
-  const pronouns = profile.pronouns ?? "she";
-  const hasMorningCheckin = todaysCheckins.some((c) => c.type === "morning");
+  const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
+  const [savingPronouns, setSavingPronouns] = useState(false);
+
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
   const lastCheckin = todaysCheckins[todaysCheckins.length - 1];
 
   const paletteEvent = weeklyReflection ? "weekly" : "base";
+
+  async function handlePronounChange(next: Pronouns) {
+    if (next === pronouns || savingPronouns) return;
+    setSavingPronouns(true);
+    setPronouns(next);
+    const supabase = createClient();
+    await supabase
+      .from("profiles")
+      .update({ pronouns: next })
+      .eq("id", profile.id);
+    setSavingPronouns(false);
+  }
 
   return (
     <PaletteWrapper event={paletteEvent}>
@@ -74,13 +95,40 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
             )}
           </section>
 
+          <div className="divider" />
+
+          {/* Pronouns selector */}
+          <section className="space-y-3">
+            <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+              Pronouns
+            </p>
+            <div className="flex border border-border dark:border-dark-border">
+              {PRONOUN_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handlePronounChange(opt.value)}
+                  disabled={savingPronouns}
+                  className={cn(
+                    "flex-1 py-3 text-xs tracking-widest uppercase transition-all duration-200",
+                    "border-r border-border dark:border-dark-border last:border-r-0",
+                    pronouns === opt.value
+                      ? "bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
+                      : "text-ink-secondary dark:text-dark-text-secondary hover:text-ink dark:hover:text-dark-text"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
         </div>
       </AppShell>
     </PaletteWrapper>
   );
 }
 
-function DailyPrompt({ morning, pronouns }: { morning: boolean; pronouns: "she" | "he" }) {
+function DailyPrompt({ morning, pronouns }: { morning: boolean; pronouns: Pronouns }) {
   const obj = P.object(pronouns);
   const subj = P.subject(pronouns);
 
