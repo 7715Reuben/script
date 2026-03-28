@@ -1,7 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic();
+const MOCK_MORNING = "That's exactly the kind of thing she'd do without thinking twice about it. Today is already hers.";
+const MOCK_EVENING = "Showing up partially still counts — she doesn't require a perfect day to make progress. The gap you named isn't a failure, it's just information. She files it and moves on.";
 
 const MORNING_SYSTEM = `You are the voice of Script — an app that helps young women become their future selves.
 
@@ -38,6 +38,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await new Promise((r) => setTimeout(r, 800));
+      return NextResponse.json({
+        response: type === "morning" ? MOCK_MORNING : MOCK_EVENING,
+      });
+    }
+
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const client = new Anthropic();
+
     const systemPrompt = type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM;
     const userMessage =
       type === "morning"
@@ -51,15 +61,10 @@ export async function POST(req: NextRequest) {
       messages: [{ role: "user", content: userMessage }],
     });
 
-    const response =
-      message.content[0].type === "text" ? message.content[0].text : "";
-
+    const response = message.content[0].type === "text" ? message.content[0].text : "";
     return NextResponse.json({ response });
   } catch (error) {
     console.error("Check-in response error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate response" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate response" }, { status: 500 });
   }
 }

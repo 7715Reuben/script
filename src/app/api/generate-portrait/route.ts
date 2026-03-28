@@ -1,7 +1,12 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic();
+const MOCK_PORTRAIT = `She moves through her days with a quietness that isn't emptiness — it's choice. The chaos that used to pull at her doesn't reach her the same way anymore. She has learned, somewhere along the way, to be selective with her energy, and that selectiveness has become one of the most beautiful things about her.
+
+Her work is an extension of who she is, not a performance of who she thinks she should be. She has built something that required her to grow into it — and she did. There is a particular kind of pride she carries about that, not loud, not announced, just present. She knows what she made and what it cost her.
+
+The people around her feel it immediately — that she is genuinely interested in them, that she listens in a way most people don't. Her relationships are not accumulated; they are chosen. The ones who know her well consider themselves lucky, and she knows it, and she tries not to take it for granted.
+
+Alone, she is good company to herself. That took time. She reads, she thinks, she has opinions about things that matter and lets go of things that don't. She wakes up most mornings with something close to anticipation — not for what's planned, but for what might become possible.`;
 
 const SYSTEM_PROMPT = `You are the voice of Script — an app that helps young women manifest their future selves through a practice called scripting.
 
@@ -38,27 +43,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Too short" }, { status: 400 });
     }
 
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await new Promise((r) => setTimeout(r, 2200));
+      return NextResponse.json({ portrait: MOCK_PORTRAIT });
+    }
+
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const client = new Anthropic();
+
     const message = await client.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 800,
       system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Here is what she wrote:\n\n${rawScript}`,
-        },
-      ],
+      messages: [{ role: "user", content: `Here is what she wrote:\n\n${rawScript}` }],
     });
 
-    const portrait =
-      message.content[0].type === "text" ? message.content[0].text : "";
-
+    const portrait = message.content[0].type === "text" ? message.content[0].text : "";
     return NextResponse.json({ portrait });
   } catch (error) {
     console.error("Portrait generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate portrait" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate portrait" }, { status: 500 });
   }
 }

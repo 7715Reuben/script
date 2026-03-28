@@ -1,7 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic();
+const MOCK_REFLECTION = `Something shifted this week, even if it was quiet. There were moments where you showed up exactly as her — not because it was easy, but because it was starting to feel natural. That's worth noting. The version of you that does these things without having to convince herself is closer than she was seven days ago.
+
+The gaps were real too. There were a couple of days where the intention was there but the follow-through got swallowed by something easier or something louder. That's not a character flaw, it's a pattern — and patterns can be worked with. The question for next week isn't "why didn't I?" but "what would make it easier to say yes?"
+
+She's still becoming. That doesn't stop. But this week added something to the foundation, even in the places that felt like they didn't.`;
 
 const SYSTEM_PROMPT = `You are the voice of Script — an app that helps young women become their future selves.
 
@@ -33,10 +36,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
     }
 
+    if (!process.env.ANTHROPIC_API_KEY) {
+      await new Promise((r) => setTimeout(r, 1200));
+      return NextResponse.json({ reflection: MOCK_REFLECTION });
+    }
+
+    const Anthropic = (await import("@anthropic-ai/sdk")).default;
+    const client = new Anthropic();
+
     const checkinsText = checkins
-      .map(
-        (c: { date: string; type: string; content: string }) =>
-          `${c.date} (${c.type}): ${c.content}`
+      .map((c: { date: string; type: string; content: string }) =>
+        `${c.date} (${c.type}): ${c.content}`
       )
       .join("\n");
 
@@ -52,15 +62,10 @@ export async function POST(req: NextRequest) {
       ],
     });
 
-    const reflection =
-      message.content[0].type === "text" ? message.content[0].text : "";
-
+    const reflection = message.content[0].type === "text" ? message.content[0].text : "";
     return NextResponse.json({ reflection });
   } catch (error) {
     console.error("Weekly reflection error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate reflection" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate reflection" }, { status: 500 });
   }
 }
