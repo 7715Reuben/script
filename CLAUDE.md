@@ -152,7 +152,16 @@ These are non-negotiable for every screen.
 
 **Typography is the design.** The portrait, the check-in responses, the reflections — these are beautifully typeset text. Invest in how it reads. Font choice, line height, spacing, and contrast are the primary design elements.
 
-**Dark mode default.** This audience opens apps at night. The default experience should be dark — deep, rich, and considered. Not harsh black — warm dark tones.
+**Cursive as accent, not default.** A cursive or script typeface is used sparingly — to emphasise a single word or short phrase within an otherwise clean sans-serif or serif context. Think the way Hinge uses it: one word in a heading, a key phrase in the portrait, the name of a section. Never full paragraphs in cursive. The contrast between the clean type and the script is the effect.
+
+**Light default, dark mode available.** The base palette is light — warm bone white (not pure white, not cream — bone: `#F5F0EB` or close) with near-black text. Dark mode inverts to a warm dark tone, not harsh black. The app should feel equally considered in both modes. Respect the system preference but allow manual toggle.
+
+**The palette breathes with the moment.** Certain key events trigger a temporary, graceful shift in the colour palette — not a jarring change, a transition. These moments are:
+- **Portrait generation** — a warm amber/gold wash while the portrait is being created. The moment of becoming.
+- **Morning check-in submitted** — a brief soft rose or blush shift. The start of the day acknowledged.
+- **Evening reflection submitted** — a shift to muted indigo or slate. Quieter, more introspective.
+- **Weekly reflection arriving** — a slow, ceremonial reveal with a warm tone before returning to base. This is a significant moment.
+The palette should return to base within seconds or on the next user interaction. These shifts should feel like the app is responding emotionally, not like a notification or a reward.
 
 **No gamification.** No streaks with fire emojis. No XP. No badges. Gentle, subtle indicators of consistency that don't cheapen the experience.
 
@@ -166,12 +175,13 @@ These are non-negotiable for every screen.
 
 Use these as visual and tonal references, not copies:
 
+- **Hinge** — the specific use of cursive as typographic accent within a clean black-and-white system. The restraint. Not the dating app context, just that visual language.
 - **Locket** — intimacy, something you return to daily
 - **Day One** — journalling quality, beautiful typography
 - **Notion** — clean, considered, typographically confident
 - **Are.na** — editorial, intentional, not trying to be everything
 
-The feeling to aim for: a beautifully designed notebook that happens to be intelligent.
+The feeling to aim for: a beautifully designed notebook that happens to be intelligent. Clean enough to feel elevated. Warm enough to feel personal.
 
 ---
 
