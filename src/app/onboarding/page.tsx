@@ -8,11 +8,11 @@ import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn, P, type Pronouns } from "@/lib/utils";
 
-type Step = "write" | "generating" | "portrait" | "auth";
+type Step = "pronouns" | "write" | "generating" | "portrait" | "auth";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("write");
+  const [step, setStep] = useState<Step>("pronouns");
   const [pronouns, setPronouns] = useState<Pronouns>("she");
   const [rawScript, setRawScript] = useState("");
   const [portrait, setPortrait] = useState("");
@@ -89,13 +89,19 @@ export default function OnboardingPage() {
         </header>
 
         <main className="flex-1 flex flex-col justify-center pb-16">
+          {step === "pronouns" && (
+            <PronounsStep
+              selected={pronouns}
+              onSelect={(p) => { setPronouns(p); setStep("write"); }}
+            />
+          )}
+
           {step === "write" && (
             <WriteStep
               value={rawScript}
               onChange={setRawScript}
               onSubmit={handleGenerate}
               pronouns={pronouns}
-              onTogglePronouns={() => setPronouns(p => p === "she" ? "he" : "she")}
               error={error}
             />
           )}
@@ -131,19 +137,66 @@ export default function OnboardingPage() {
   );
 }
 
+function PronounsStep({
+  selected,
+  onSelect,
+}: {
+  selected: Pronouns;
+  onSelect: (p: Pronouns) => void;
+}) {
+  return (
+    <div className="space-y-12 animate-fade-up">
+      <div className="space-y-3">
+        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+          Welcome to Script
+        </p>
+        <h1 className="heading-editorial text-[1.6rem] leading-[1.35] text-ink dark:text-dark-text">
+          Who are you{" "}
+          <span className="accent-script">scripting</span>{" "}
+          into existence?
+        </h1>
+      </div>
+
+      <div className="space-y-3">
+        <button
+          onClick={() => onSelect("she")}
+          className={cn(
+            "w-full py-5 text-left px-6 border transition-all duration-200",
+            selected === "she"
+              ? "border-ink dark:border-dark-text bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
+              : "border-border dark:border-dark-border text-ink dark:text-dark-text hover:border-ink-secondary dark:hover:border-dark-text-secondary"
+          )}
+        >
+          <span className="text-sm tracking-widest uppercase">she / her</span>
+        </button>
+
+        <button
+          onClick={() => onSelect("he")}
+          className={cn(
+            "w-full py-5 text-left px-6 border transition-all duration-200",
+            selected === "he"
+              ? "border-ink dark:border-dark-text bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
+              : "border-border dark:border-dark-border text-ink dark:text-dark-text hover:border-ink-secondary dark:hover:border-dark-text-secondary"
+          )}
+        >
+          <span className="text-sm tracking-widest uppercase">he / him</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function WriteStep({
   value,
   onChange,
   onSubmit,
   pronouns,
-  onTogglePronouns,
   error,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSubmit: () => void;
   pronouns: Pronouns;
-  onTogglePronouns: () => void;
   error: string;
 }) {
   const ready = value.trim().length >= 20;
@@ -153,19 +206,9 @@ function WriteStep({
   return (
     <div className="space-y-10 animate-fade-up">
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
-            Your script
-          </p>
-          <button
-            onClick={onTogglePronouns}
-            className="flex items-center gap-1.5 text-xs text-ink-faint dark:text-dark-text-secondary hover:text-ink dark:hover:text-dark-text transition-colors"
-          >
-            <span className={pronouns === "she" ? "text-ink dark:text-dark-text" : ""}>she/her</span>
-            <span className="mx-0.5">·</span>
-            <span className={pronouns === "he" ? "text-ink dark:text-dark-text" : ""}>he/him</span>
-          </button>
-        </div>
+        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+          Your script
+        </p>
         <h1 className="heading-editorial text-[1.6rem] leading-[1.35] text-ink dark:text-dark-text">
           Close your eyes for a moment.{" "}
           <span className="accent-script">It&apos;s three years from now</span> and
