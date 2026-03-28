@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+
+:root {
+  --font-dm-sans: 'DM Sans', system-ui, sans-serif;
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bone text-ink font-sans;
+    min-height: 100dvh;
+  }
+
+  .dark body {
+    @apply bg-dark-bg text-dark-text;
+  }
+
+  /* Scrollbar — minimal */
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-ink text-bone;
+  }
+
+  .dark ::selection {
+    @apply bg-bone text-ink;
+  }
+}
+
+@layer components {
+  /* The cursive accent — used on single words or short phrases only */
+  .accent-script {
+    font-family: var(--font-cormorant);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.15em;
+    letter-spacing: 0.01em;
+  }
+
+  /* Portrait text — the most important text in the app */
+  .portrait-text {
+    font-family: var(--font-playfair);
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Editorial heading */
+  .heading-editorial {
+    font-family: var(--font-playfair);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Subtle divider */
+  .divider {
+    @apply border-t border-border;
+  }
+
+  .dark .divider {
+    @apply border-dark-border;
+  }
+
+  /* Tap target minimum */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@layer utilities {
+  /* Palette shift backgrounds */
+  .palette-portrait {
+    background-color: #FDF6E3;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .palette-morning {
+    background-color: #FDF0EE;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .palette-evening {
+    background-color: #F0F2F8;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .palette-weekly {
+    background-color: #FBF5E6;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .palette-base {
+    background-color: #F5F0EB;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .dark .palette-base {
+    background-color: #1A1714;
+  }
+}
