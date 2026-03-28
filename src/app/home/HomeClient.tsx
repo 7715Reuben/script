@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
@@ -23,8 +24,15 @@ const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
 
 export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeClientProps) {
   const morning = isMorning();
+  const router = useRouter();
   const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
   const [savingPronouns, setSavingPronouns] = useState(false);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/onboarding");
+  }
 
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
   const lastCheckin = todaysCheckins[todaysCheckins.length - 1];
@@ -121,6 +129,13 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
               ))}
             </div>
           </section>
+
+          <button
+            onClick={handleSignOut}
+            className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+          >
+            Sign out
+          </button>
 
         </div>
       </AppShell>
