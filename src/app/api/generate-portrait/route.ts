@@ -45,9 +45,22 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 2200));
-      const mock = pronouns === "he"
-        ? MOCK_PORTRAIT.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bherself\b/g, "himself").replace(/\bHer\b/g, "His").replace(/\bShe\b/g, "He")
-        : MOCK_PORTRAIT;
+      let mock = MOCK_PORTRAIT;
+      if (pronouns === "he") {
+        mock = mock
+          .replace(/\bherself\b/g, "himself")
+          .replace(/\bshe\b/g, "he")
+          .replace(/\bher\b/g, "him")
+          .replace(/\bHer\b/g, "His")
+          .replace(/\bShe\b/g, "He");
+      } else if (pronouns === "they") {
+        mock = mock
+          .replace(/\bherself\b/g, "themselves")
+          .replace(/\bshe\b/g, "they")
+          .replace(/\bher\b/g, "them")
+          .replace(/\bHer\b/g, "Their")
+          .replace(/\bShe\b/g, "They");
+      }
       return NextResponse.json({ portrait: mock });
     }
 
@@ -56,6 +69,8 @@ export async function POST(req: NextRequest) {
 
     const pronounLine = pronouns === "he"
       ? "Use he/him/his pronouns throughout."
+      : pronouns === "they"
+      ? "Use they/them/their pronouns throughout."
       : "Use she/her/hers pronouns throughout.";
 
     const message = await client.messages.create({
