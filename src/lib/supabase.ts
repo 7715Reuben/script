@@ -7,11 +7,14 @@ export function createClient() {
   );
 }
 
+export type Pronouns = "she" | "he";
+
 export type Profile = {
   id: string;
   user_id: string;
   raw_script: string;
   portrait: string;
+  pronouns: Pronouns;
   created_at: string;
   updated_at: string;
 };

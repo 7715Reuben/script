@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper, type PaletteEvent } from "@/components/ui/PaletteWrapper";
-import { cn, getTodayString } from "@/lib/utils";
+import { cn, getTodayString, P, type Pronouns } from "@/lib/utils";
 
 function CheckinContent() {
   const router = useRouter();
@@ -17,6 +17,7 @@ function CheckinContent() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [pronouns, setPronouns] = useState<Pronouns>("she");
 
   const paletteEvent: PaletteEvent = done
     ? type === "morning" ? "morning" : "evening"
@@ -32,14 +33,14 @@ function CheckinContent() {
     if (!user) { router.push("/onboarding"); return; }
 
     try {
-      // Get portrait for personalised response
       const { data: profile } = await supabase
         .from("profiles")
-        .select("portrait")
+        .select("portrait, pronouns")
         .eq("user_id", user.id)
         .single();
 
-      // Get AI response
+      if (profile?.pronouns) setPronouns(profile.pronouns);
+
       const res = await fetch("/api/checkin-response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,12 +48,12 @@ function CheckinContent() {
           type,
           content,
           portrait: profile?.portrait || "",
+          pronouns: profile?.pronouns || "she",
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      // Save check-in
       await supabase.from("checkins").insert({
         user_id: user.id,
         type,
@@ -70,12 +71,14 @@ function CheckinContent() {
     }
   };
 
+  const obj = P.object(pronouns);
+  const subj = P.subject(pronouns);
+
   return (
     <PaletteWrapper event={paletteEvent}>
       <AppShell>
         <div className="space-y-10 pb-8">
           {!done ? (
-            // Input view
             <div className="space-y-10 animate-fade-up">
               <div className="space-y-3">
                 <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
@@ -85,12 +88,12 @@ function CheckinContent() {
                   {type === "morning" ? (
                     <>
                       What is one thing you&apos;ll do today that{" "}
-                      <span className="accent-script">she</span> would do?
+                      <span className="accent-script">{subj}</span> would do?
                     </>
                   ) : (
                     <>
                       Did you show up as{" "}
-                      <span className="accent-script">her</span> today?{" "}
+                      <span className="accent-script">{obj}</span> today?{" "}
                       What got in the way?
                     </>
                   )}
@@ -102,7 +105,7 @@ function CheckinContent() {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={
                   type === "morning"
-                    ? "She would wake up early and..."
+                    ? `${subj.charAt(0).toUpperCase() + subj.slice(1)} would wake up early and...`
                     : "I mostly did, but..."
                 }
                 className="w-full min-h-[160px] bg-transparent text-ink dark:text-dark-text placeholder:text-ink-faint dark:placeholder:text-dark-text-secondary text-[0.9375rem] leading-relaxed resize-none outline-none border-b border-border dark:border-dark-border pb-3"
@@ -127,7 +130,6 @@ function CheckinContent() {
               </button>
             </div>
           ) : (
-            // Response view
             <div className="space-y-10 animate-fade-up">
               <div className="space-y-3">
                 <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">

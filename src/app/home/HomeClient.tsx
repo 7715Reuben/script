@@ -5,7 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import type { Profile, Checkin, WeeklyReflection } from "@/lib/supabase";
-import { isMorning } from "@/lib/utils";
+import { isMorning, P } from "@/lib/utils";
 
 interface HomeClientProps {
   profile: Profile;
@@ -15,31 +15,27 @@ interface HomeClientProps {
 
 export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeClientProps) {
   const morning = isMorning();
+  const pronouns = profile.pronouns ?? "she";
   const hasMorningCheckin = todaysCheckins.some((c) => c.type === "morning");
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
   const lastCheckin = todaysCheckins[todaysCheckins.length - 1];
 
-  const paletteEvent = weeklyReflection ? "weekly"
-    : hasMorningCheckin && !hasEveningCheckin ? "base"
-    : "base";
+  const paletteEvent = weeklyReflection ? "weekly" : "base";
 
   return (
     <PaletteWrapper event={paletteEvent}>
       <AppShell>
         <div className="space-y-12 pb-8 animate-fade-up">
 
-          {/* Portrait */}
           <section className="space-y-5">
             <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
-              Her portrait
+              {P.portrait(pronouns)}
             </p>
             <PortraitDisplay portrait={profile.portrait} />
           </section>
 
-          {/* Divider */}
           <div className="divider" />
 
-          {/* Weekly reflection — shown if it exists and it's Sunday */}
           {weeklyReflection && (
             <section className="space-y-4">
               <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
@@ -55,10 +51,8 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
             </section>
           )}
 
-          {/* Daily moment */}
           <section className="space-y-4">
             {lastCheckin ? (
-              // Show last AI response
               <div className="space-y-3">
                 <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
                   {lastCheckin.type === "morning" ? "This morning" : "This evening"}
@@ -76,8 +70,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
                 )}
               </div>
             ) : (
-              // Show today's prompt
-              <DailyPrompt morning={morning} />
+              <DailyPrompt morning={morning} pronouns={pronouns} />
             )}
           </section>
 
@@ -87,7 +80,10 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection }: HomeCl
   );
 }
 
-function DailyPrompt({ morning }: { morning: boolean }) {
+function DailyPrompt({ morning, pronouns }: { morning: boolean; pronouns: "she" | "he" }) {
+  const obj = P.object(pronouns);
+  const subj = P.subject(pronouns);
+
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -98,12 +94,12 @@ function DailyPrompt({ morning }: { morning: boolean }) {
           {morning ? (
             <>
               What is one thing you&apos;ll do today that{" "}
-              <span className="accent-script">she</span> would do?
+              <span className="accent-script">{subj}</span> would do?
             </>
           ) : (
             <>
               Did you show up as{" "}
-              <span className="accent-script">her</span> today?
+              <span className="accent-script">{obj}</span> today?
             </>
           )}
         </p>

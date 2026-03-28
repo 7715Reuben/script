@@ -25,3 +25,15 @@ export function isMorning(): boolean {
 export function isSunday(): boolean {
   return new Date().getDay() === 0;
 }
+
+// Pronoun helpers — used everywhere in UI and AI prompts
+export type Pronouns = "she" | "he";
+
+export const P = {
+  subject: (p: Pronouns) => p === "she" ? "she" : "he",
+  object: (p: Pronouns) => p === "she" ? "her" : "him",
+  possessive: (p: Pronouns) => p === "she" ? "her" : "his",
+  reflexive: (p: Pronouns) => p === "she" ? "herself" : "himself",
+  portrait: (p: Pronouns) => p === "she" ? "Her portrait" : "His portrait",
+  portraitLower: (p: Pronouns) => p === "she" ? "her portrait" : "his portrait",
+};

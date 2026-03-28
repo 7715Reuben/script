@@ -6,13 +6,14 @@ import { createClient } from "@/lib/supabase";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { cn } from "@/lib/utils";
+import { cn, P, type Pronouns } from "@/lib/utils";
 
 type Step = "write" | "generating" | "portrait" | "auth";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("write");
+  const [pronouns, setPronouns] = useState<Pronouns>("she");
   const [rawScript, setRawScript] = useState("");
   const [portrait, setPortrait] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +31,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/generate-portrait", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawScript }),
+        body: JSON.stringify({ rawScript, pronouns }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -40,10 +41,6 @@ export default function OnboardingPage() {
       setError("Something went wrong. Try again.");
       setStep("write");
     }
-  };
-
-  const handleConfirmPortrait = () => {
-    setStep("auth");
   };
 
   const handleAuth = async (mode: "signin" | "signup") => {
@@ -64,16 +61,15 @@ export default function OnboardingPage() {
         userId = data.user!.id;
       }
 
-      // Save portrait
       const { error: profileError } = await supabase.from("profiles").upsert({
         user_id: userId,
         raw_script: rawScript,
-        portrait: portrait,
+        portrait,
+        pronouns,
         updated_at: new Date().toISOString(),
       });
 
       if (profileError) throw profileError;
-
       router.push("/home");
     } catch (err: unknown) {
       setAuthError(err instanceof Error ? err.message : "Something went wrong.");
@@ -85,7 +81,6 @@ export default function OnboardingPage() {
   return (
     <PaletteWrapper event={step === "generating" || step === "portrait" ? "portrait" : "base"}>
       <div className="flex flex-col min-h-dvh max-w-lg mx-auto px-6">
-        {/* Header */}
         <header className="flex items-center justify-between pt-12 pb-4">
           <span className="font-serif text-lg tracking-tight text-ink dark:text-dark-text">
             Script
@@ -99,23 +94,27 @@ export default function OnboardingPage() {
               value={rawScript}
               onChange={setRawScript}
               onSubmit={handleGenerate}
+              pronouns={pronouns}
+              onTogglePronouns={() => setPronouns(p => p === "she" ? "he" : "she")}
               error={error}
             />
           )}
 
-          {step === "generating" && <GeneratingStep />}
+          {step === "generating" && <GeneratingStep pronouns={pronouns} />}
 
           {step === "portrait" && (
             <PortraitStep
               portrait={portrait}
+              pronouns={pronouns}
               onEdit={setPortrait}
-              onConfirm={handleConfirmPortrait}
+              onConfirm={() => setStep("auth")}
               onRewrite={() => setStep("write")}
             />
           )}
 
           {step === "auth" && (
             <AuthStep
+              pronouns={pronouns}
               email={email}
               password={password}
               onEmailChange={setEmail}
@@ -132,41 +131,55 @@ export default function OnboardingPage() {
   );
 }
 
-// ─── Write Step ───────────────────────────────────────────────────────────────
-
 function WriteStep({
   value,
   onChange,
   onSubmit,
+  pronouns,
+  onTogglePronouns,
   error,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSubmit: () => void;
+  pronouns: Pronouns;
+  onTogglePronouns: () => void;
   error: string;
 }) {
   const ready = value.trim().length >= 20;
+  const obj = P.object(pronouns);
+  const subj = P.subject(pronouns);
 
   return (
     <div className="space-y-10 animate-fade-up">
       <div className="space-y-4">
-        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
-          Your script
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+            Your script
+          </p>
+          <button
+            onClick={onTogglePronouns}
+            className="flex items-center gap-1.5 text-xs text-ink-faint dark:text-dark-text-secondary hover:text-ink dark:hover:text-dark-text transition-colors"
+          >
+            <span className={pronouns === "she" ? "text-ink dark:text-dark-text" : ""}>she/her</span>
+            <span className="mx-0.5">·</span>
+            <span className={pronouns === "he" ? "text-ink dark:text-dark-text" : ""}>he/him</span>
+          </button>
+        </div>
         <h1 className="heading-editorial text-[1.6rem] leading-[1.35] text-ink dark:text-dark-text">
           Close your eyes for a moment.{" "}
           <span className="accent-script">It&apos;s three years from now</span> and
           everything worked.
         </h1>
         <p className="text-ink-secondary dark:text-dark-text-secondary text-[0.9375rem] leading-relaxed">
-          Describe her — the person you became. Not what she achieved. Who she is.
+          Describe {obj} — the person you became. Not what {subj} achieved. Who {subj} is.
         </p>
       </div>
 
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="She wakes up and the first thing she feels is..."
+        placeholder={`${subj.charAt(0).toUpperCase() + subj.slice(1)} wakes up and the first thing ${subj} feels is...`}
         className="w-full min-h-[220px] bg-transparent text-ink dark:text-dark-text placeholder:text-ink-faint dark:placeholder:text-dark-text-secondary text-[0.9375rem] leading-relaxed resize-none outline-none border-b border-border dark:border-dark-border pb-3 transition-colors"
         autoFocus
       />
@@ -185,26 +198,23 @@ function WriteStep({
             : "bg-border dark:bg-dark-border text-ink-faint dark:text-dark-text-secondary cursor-not-allowed"
         )}
       >
-        Write her into existence
+        Write {obj} into existence
       </button>
     </div>
   );
 }
 
-// ─── Generating Step ──────────────────────────────────────────────────────────
-
-function GeneratingStep() {
+function GeneratingStep({ pronouns }: { pronouns: Pronouns }) {
   return (
     <div className="flex flex-col items-center justify-center space-y-8 animate-fade-in">
       <div className="space-y-2 text-center">
         <p className="accent-script text-2xl text-portrait-accent">
-          Reading her...
+          Reading {P.object(pronouns)}...
         </p>
         <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
           This takes a moment
         </p>
       </div>
-      {/* Pulsing dot */}
       <div className="flex gap-1.5">
         {[0, 1, 2].map((i) => (
           <span
@@ -218,19 +228,22 @@ function GeneratingStep() {
   );
 }
 
-// ─── Portrait Step ────────────────────────────────────────────────────────────
-
 function PortraitStep({
   portrait,
+  pronouns,
   onEdit,
   onConfirm,
   onRewrite,
 }: {
   portrait: string;
+  pronouns: Pronouns;
   onEdit: (p: string) => void;
   onConfirm: () => void;
   onRewrite: () => void;
 }) {
+  const obj = P.object(pronouns);
+  const subj = P.subject(pronouns);
+
   return (
     <div className="space-y-10 animate-fade-up">
       <div className="space-y-1">
@@ -238,7 +251,7 @@ function PortraitStep({
           Your portrait
         </p>
         <p className="accent-script text-lg text-portrait-accent">
-          This is her.
+          This is {obj}.
         </p>
       </div>
 
@@ -249,7 +262,7 @@ function PortraitStep({
           onClick={onConfirm}
           className="w-full py-4 bg-ink dark:bg-dark-text text-bone dark:text-dark-bg text-sm tracking-widest uppercase"
         >
-          This is her
+          This is {subj}
         </button>
         <button
           onClick={onRewrite}
@@ -262,9 +275,8 @@ function PortraitStep({
   );
 }
 
-// ─── Auth Step ────────────────────────────────────────────────────────────────
-
 function AuthStep({
+  pronouns,
   email,
   password,
   onEmailChange,
@@ -274,6 +286,7 @@ function AuthStep({
   error,
   loading,
 }: {
+  pronouns: Pronouns;
   email: string;
   password: string;
   onEmailChange: (v: string) => void;
@@ -287,7 +300,7 @@ function AuthStep({
     <div className="space-y-10 animate-fade-up">
       <div className="space-y-2">
         <p className="accent-script text-xl text-ink dark:text-dark-text">
-          Save her.
+          Save {P.object(pronouns)}.
         </p>
         <p className="text-ink-secondary dark:text-dark-text-secondary text-sm leading-relaxed">
           Create an account to keep your portrait and check in every day.
