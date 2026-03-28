@@ -8,12 +8,12 @@ import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn, P, type Pronouns } from "@/lib/utils";
 
-type Step = "pronouns" | "write" | "generating" | "portrait" | "auth";
+type Step = "write" | "generating" | "portrait" | "auth";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("pronouns");
-  const [pronouns, setPronouns] = useState<Pronouns>("she");
+  const [step, setStep] = useState<Step>("write");
+  const [pronouns] = useState<Pronouns>("they");
   const [rawScript, setRawScript] = useState("");
   const [portrait, setPortrait] = useState("");
   const [error, setError] = useState("");
@@ -89,24 +89,16 @@ export default function OnboardingPage() {
         </header>
 
         <main className="flex-1 flex flex-col justify-center pb-16">
-          {step === "pronouns" && (
-            <PronounsStep
-              selected={pronouns}
-              onSelect={(p) => { setPronouns(p); setStep("write"); }}
-            />
-          )}
-
           {step === "write" && (
             <WriteStep
               value={rawScript}
               onChange={setRawScript}
               onSubmit={handleGenerate}
-              pronouns={pronouns}
               error={error}
             />
           )}
 
-          {step === "generating" && <GeneratingStep pronouns={pronouns} />}
+          {step === "generating" && <GeneratingStep />}
 
           {step === "portrait" && (
             <PortraitStep
@@ -137,71 +129,18 @@ export default function OnboardingPage() {
   );
 }
 
-function PronounsStep({
-  selected,
-  onSelect,
-}: {
-  selected: Pronouns;
-  onSelect: (p: Pronouns) => void;
-}) {
-  return (
-    <div className="space-y-12 animate-fade-up">
-      <div className="space-y-3">
-        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
-          Welcome to Script
-        </p>
-        <h1 className="heading-editorial text-[1.6rem] leading-[1.35] text-ink dark:text-dark-text">
-          Who are you{" "}
-          <span className="accent-script">scripting</span>{" "}
-          into existence?
-        </h1>
-      </div>
-
-      <div className="space-y-3">
-        <button
-          onClick={() => onSelect("she")}
-          className={cn(
-            "w-full py-5 text-left px-6 border transition-all duration-200",
-            selected === "she"
-              ? "border-ink dark:border-dark-text bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
-              : "border-border dark:border-dark-border text-ink dark:text-dark-text hover:border-ink-secondary dark:hover:border-dark-text-secondary"
-          )}
-        >
-          <span className="text-sm tracking-widest uppercase">she / her</span>
-        </button>
-
-        <button
-          onClick={() => onSelect("he")}
-          className={cn(
-            "w-full py-5 text-left px-6 border transition-all duration-200",
-            selected === "he"
-              ? "border-ink dark:border-dark-text bg-ink dark:bg-dark-text text-bone dark:text-dark-bg"
-              : "border-border dark:border-dark-border text-ink dark:text-dark-text hover:border-ink-secondary dark:hover:border-dark-text-secondary"
-          )}
-        >
-          <span className="text-sm tracking-widest uppercase">he / him</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function WriteStep({
   value,
   onChange,
   onSubmit,
-  pronouns,
   error,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSubmit: () => void;
-  pronouns: Pronouns;
   error: string;
 }) {
   const ready = value.trim().length >= 20;
-  const obj = P.object(pronouns);
-  const subj = P.subject(pronouns);
 
   return (
     <div className="space-y-10 animate-fade-up">
@@ -215,14 +154,14 @@ function WriteStep({
           everything worked.
         </h1>
         <p className="text-ink-secondary dark:text-dark-text-secondary text-[0.9375rem] leading-relaxed">
-          Describe {obj} — the person you became. Not what {subj} achieved. Who {subj} is.
+          Describe the person you became. Not what you achieved. Who you are.
         </p>
       </div>
 
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={`${subj.charAt(0).toUpperCase() + subj.slice(1)} wakes up and the first thing ${subj} feels is...`}
+        placeholder="They wake up and the first thing they feel is..."
         className="w-full min-h-[220px] bg-transparent text-ink dark:text-dark-text placeholder:text-ink-faint dark:placeholder:text-dark-text-secondary text-[0.9375rem] leading-relaxed resize-none outline-none border-b border-border dark:border-dark-border pb-3 transition-colors"
         autoFocus
       />
@@ -241,18 +180,18 @@ function WriteStep({
             : "bg-border dark:bg-dark-border text-ink-faint dark:text-dark-text-secondary cursor-not-allowed"
         )}
       >
-        Write {obj} into existence
+        Write them into existence
       </button>
     </div>
   );
 }
 
-function GeneratingStep({ pronouns }: { pronouns: Pronouns }) {
+function GeneratingStep() {
   return (
     <div className="flex flex-col items-center justify-center space-y-8 animate-fade-in">
       <div className="space-y-2 text-center">
         <p className="accent-script text-2xl text-portrait-accent">
-          Reading {P.object(pronouns)}...
+          Reading you...
         </p>
         <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
           This takes a moment
