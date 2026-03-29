@@ -8,6 +8,14 @@ import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { createClient } from "@/lib/supabase";
 import type { Profile, Checkin, WeeklyReflection, Pronouns, Commitment, CommitmentLog } from "@/lib/supabase";
+
+type TodaysChallenge = {
+  challengeId: string;
+  title: string;
+  day: number;
+  action: string;
+  done: boolean;
+} | null;
 import { isMorning, P, cn, getTodayString } from "@/lib/utils";
 
 interface HomeClientProps {
@@ -16,6 +24,7 @@ interface HomeClientProps {
   weeklyReflection: WeeklyReflection | null;
   commitments: Commitment[];
   todaysLogs: CommitmentLog[];
+  todaysChallenge: TodaysChallenge;
 }
 
 const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
@@ -24,7 +33,7 @@ const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
   { value: "he", label: "he / him" },
 ];
 
-export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitments, todaysLogs }: HomeClientProps) {
+export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitments, todaysLogs, todaysChallenge }: HomeClientProps) {
   const morning = isMorning();
   const router = useRouter();
   const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
@@ -117,6 +126,13 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
             userId={profile.user_id}
           />
 
+          {todaysChallenge && (
+            <>
+              <div className="divider" />
+              <ChallengeSection challenge={todaysChallenge} userId={profile.user_id} />
+            </>
+          )}
+
           <div className="divider" />
 
           {/* Primary spaces */}
@@ -142,9 +158,15 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
               </Link>
               <Link
                 href="/retrospective"
-                className="flex-1 py-4 text-center text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
+                className="flex-1 py-4 text-center border-r border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
               >
                 Month
+              </Link>
+              <Link
+                href="/challenges"
+                className="flex-1 py-4 text-center text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
+              >
+                Challenge
               </Link>
             </div>
           </section>
@@ -284,6 +306,72 @@ function CommitmentsSection({
           })}
         </ul>
       )}
+    </section>
+  );
+}
+
+function ChallengeSection({
+  challenge,
+  userId,
+}: {
+  challenge: NonNullable<TodaysChallenge>;
+  userId: string;
+}) {
+  const [done, setDone] = useState(challenge.done);
+  const [saving, setSaving] = useState(false);
+
+  async function toggleDone() {
+    if (saving) return;
+    setSaving(true);
+    const supabase = createClient();
+    if (done) {
+      await supabase
+        .from("challenge_logs")
+        .delete()
+        .eq("challenge_id", challenge.challengeId)
+        .eq("day", challenge.day);
+      setDone(false);
+    } else {
+      await supabase.from("challenge_logs").upsert({
+        user_id: userId,
+        challenge_id: challenge.challengeId,
+        day: challenge.day,
+        completed_at: getTodayString(),
+      });
+      setDone(true);
+    }
+    setSaving(false);
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between">
+        <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+          Challenge · Day {challenge.day}
+        </p>
+        <Link
+          href="/challenges"
+          className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+        >
+          View all
+        </Link>
+      </div>
+      <p className={cn(
+        "text-[0.9375rem] leading-relaxed transition-colors",
+        done ? "text-ink-faint dark:text-dark-text-secondary line-through" : "text-ink dark:text-dark-text"
+      )}>
+        {challenge.action}
+      </p>
+      <button
+        onClick={toggleDone}
+        disabled={saving}
+        className={cn(
+          "text-xs tracking-widest uppercase transition-colors",
+          done ? "text-ink dark:text-dark-text" : "text-ink-faint dark:text-dark-text-secondary"
+        )}
+      >
+        {done ? "✓ Done" : "Mark as done"}
+      </button>
     </section>
   );
 }
