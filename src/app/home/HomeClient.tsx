@@ -111,6 +111,26 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
 
           <div className="divider" />
 
+          {/* Journal + Retrospective links */}
+          <section className="space-y-3">
+            <div className="flex gap-6">
+              <Link
+                href="/journal"
+                className="flex-1 py-4 text-center border border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:border-ink-secondary dark:hover:border-dark-text-secondary transition-colors"
+              >
+                Journal
+              </Link>
+              <Link
+                href="/retrospective"
+                className="flex-1 py-4 text-center border border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:border-ink-secondary dark:hover:border-dark-text-secondary transition-colors"
+              >
+                Your month
+              </Link>
+            </div>
+          </section>
+
+          <div className="divider" />
+
           <section className="space-y-3">
             <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
               Pronouns

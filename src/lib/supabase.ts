@@ -54,3 +54,20 @@ export type CommitmentLog = {
   kept: boolean;
   created_at: string;
 };
+
+export type JournalEntry = {
+  id: string;
+  user_id: string;
+  content: string;
+  date: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MonthlyRetrospective = {
+  id: string;
+  user_id: string;
+  content: string;
+  month: string; // YYYY-MM
+  created_at: string;
+};
