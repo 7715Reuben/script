@@ -119,7 +119,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
 
           <div className="divider" />
 
-          {/* Journal + Retrospective + Conversation links */}
+          {/* Primary spaces */}
           <section className="space-y-3">
             <div className="flex gap-0 border border-border dark:border-dark-border">
               <Link
@@ -127,6 +127,12 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
                 className="flex-1 py-4 text-center border-r border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
               >
                 Talk
+              </Link>
+              <Link
+                href="/scripting-session"
+                className="flex-1 py-4 text-center border-r border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
+              >
+                Script
               </Link>
               <Link
                 href="/journal"
@@ -138,7 +144,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
                 href="/retrospective"
                 className="flex-1 py-4 text-center text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
               >
-                Your month
+                Month
               </Link>
             </div>
           </section>
