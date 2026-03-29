@@ -124,21 +124,105 @@ This is not a stats summary. It is a written reflection in the app's voice — p
 
 ---
 
-## The Roadmap — Do Not Build These Yet
+## What Has Been Built
 
-Document these here so the architecture can accommodate them, but do not build them.
+V1 is complete. Beyond the original spec, the following have also been built:
 
-### V2 — The Vision Board
+- **Commitments** — up to 5 personal commitments (ways of being, not tasks). Shown on the home screen. Evening AI check-in directly names missed commitments without softening.
+- **Journal** — free-write daily journal with auto-save. Past entries browsable inline. Lives at `/journal`.
+- **Monthly Retrospective** — AI-generated monthly reflection synthesising check-ins, journal entries, and commitments. Gated at 5 check-ins. Lives at `/retrospective`.
+- **Pronoun system** — she/her · they/them · he/him. Defaults to they/them. Settable post-onboarding on the home screen.
+- **Name field** — captured at portrait confirmation, gates the continue button.
+- **Sign out** — bottom of home screen.
 
-AI-generated visual imagery based on the user's identity portrait. The aesthetic, the spaces, the energy of the person they described — made visual. Updated as the portrait evolves. Something the user would want to open just to look at. Shareable to Instagram and TikTok stories.
+---
 
-### V3 — The Soundtrack
+## Monetisation Model
 
-A curated or AI-generated playlist that sounds like the person they're becoming. Not motivational music — identity music. The sonic world of their future self. Integrated with Spotify or Apple Music.
+**Free tier:**
+- Identity portrait (one pass, onboarding)
+- 2 daily check-ins
+- Commitments
+- Journal (last 30 days visible)
+- Monthly retrospective
 
-### V4 — Community Layer
+**Premium (~£7.99/month · £49.99/year):**
+- Portrait Sessions (guided AI deep-dives that enrich the portrait over time)
+- Portrait Evolution (portrait becomes a living document; see how it has changed)
+- AI Conversation (full ongoing conversation with an AI that knows your portrait, check-ins, and journal)
+- Scripting Sessions (free-write as your future self; AI reflects back what it noticed)
+- Identity Challenges (7 or 21-day micro-challenges generated from your specific portrait)
+- Full journal and reflection archive (beyond 30 days)
 
-The ability to make your portrait public. A feed of other people's portraits and journeys. Shared scripting sessions. A credibility layer showing consistency over time.
+**Growth / acquisition (always free):**
+- Anonymous Portrait Feed — opt-in public portraits, no names, no photos. Shareable to Stories. This is the organic growth engine.
+
+---
+
+## The Roadmap
+
+Build in this order. Do not skip ahead. Each feature builds on the last.
+
+### Next — AI Conversation (Premium)
+
+A dedicated conversation screen where the user can talk freely with an AI that has read everything: their portrait, their check-ins, their journal, their commitments. Not a chatbot. A trusted presence that knows them.
+
+- Lives at `/conversation`
+- Conversation history persisted in Supabase (`conversations` table: `id, user_id, role, content, created_at`)
+- Context window built fresh each request: portrait + last 7 days of check-ins + last 3 journal entries + commitments
+- AI never summarises or lists — it speaks in the app's voice
+- Premium-gated: free users see a locked state with one example exchange
+
+### After — Portrait Sessions + Portrait Evolution
+
+Guided deep-dive conversations that add specificity to the portrait: her relationships, her mornings, her body, her work, her voice. Each session produces a portrait "layer" that gets appended to or woven into the existing portrait.
+
+Portrait Evolution: store portrait versions with timestamps. Show a before/after comparison — "this is where you started, this is where you are now." The portrait is not static; it grows as the user grows.
+
+- `portrait_versions` table: `id, user_id, content, created_at`
+- Current portrait is always the latest version
+- A "Your portrait has evolved" moment — ceremonial, warm, significant
+
+### After — Scripting Sessions (Premium)
+
+A separate writing mode. The user writes in first person, present tense, as their future self. Stream of consciousness. No prompts. Just space.
+
+When they submit, the AI reads it and responds with:
+1. What felt genuinely true — the parts that sounded like real belief
+2. What felt like performance — the parts that sounded like wishful thinking
+3. One thing it noticed they haven't put in their portrait yet
+
+This feeds back into Portrait Evolution.
+
+### After — Identity Challenges (Premium)
+
+7 or 21-day micro-challenges generated from the user's specific portrait. Not generic. Tied to who they said they were becoming.
+
+- AI generates a challenge set on request
+- One action per day, surfaced on the home screen alongside the check-in
+- At the end, a short reflection on what the challenge revealed
+- Repeatable — new challenge generated each time
+
+### After — Anonymous Portrait Feed (Free — Growth Engine)
+
+Opt-in. Users can make their portrait public. No names, no photos, no follows. Just the writing.
+
+- A browsable feed of other people's portraits
+- Filterable by vibe/theme (AI-tagged on generation)
+- Shareable as a Story card (portrait text on brand background)
+- This is the primary acquisition channel — something you'd screenshot and send
+
+### Later — Vision Board (V2)
+
+AI-generated visual imagery based on the portrait. Updated as the portrait evolves. Shareable to Instagram and TikTok Stories.
+
+### Later — Soundtrack (V3)
+
+A playlist that sounds like the person they're becoming. Integrated with Spotify or Apple Music.
+
+### Later — Full Community Layer (V4)
+
+Shared scripting sessions. A credibility layer showing consistency over time. Replies and encouragement on public portraits.
 
 ---
 
@@ -218,7 +302,7 @@ All AI calls use the Anthropic API (Claude).
 
 ## What Not To Do
 
-- Do not add any feature not listed in V1 scope without asking
+- Do not add any feature not listed in the roadmap above without asking
 - Do not use corporate wellness language anywhere in the UI
 - Do not gamify the experience with streaks, points, or achievement badges
 - Do not build a dashboard with charts and metrics for V1
@@ -245,4 +329,4 @@ At the end of every session:
 
 ---
 
-*Last updated: March 2026*
+*Last updated: March 2026 — V1 complete, building premium features*
