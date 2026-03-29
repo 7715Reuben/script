@@ -55,9 +55,17 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
         <div className="space-y-12 pb-8 animate-fade-up">
 
           <section className="space-y-5">
-            <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
-              {P.portrait(pronouns)}
-            </p>
+            <div className="flex items-baseline justify-between">
+              <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+                {P.portrait(pronouns)}
+              </p>
+              <Link
+                href="/portrait-session"
+                className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+              >
+                Deepen →
+              </Link>
+            </div>
             <PortraitDisplay portrait={profile.portrait} />
           </section>
 
