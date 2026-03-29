@@ -71,3 +71,11 @@ export type MonthlyRetrospective = {
   month: string; // YYYY-MM
   created_at: string;
 };
+
+export type Conversation = {
+  id: string;
+  user_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};

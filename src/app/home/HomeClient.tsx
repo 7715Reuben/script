@@ -111,18 +111,24 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
 
           <div className="divider" />
 
-          {/* Journal + Retrospective links */}
+          {/* Journal + Retrospective + Conversation links */}
           <section className="space-y-3">
-            <div className="flex gap-6">
+            <div className="flex gap-0 border border-border dark:border-dark-border">
+              <Link
+                href="/conversation"
+                className="flex-1 py-4 text-center border-r border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
+              >
+                Talk
+              </Link>
               <Link
                 href="/journal"
-                className="flex-1 py-4 text-center border border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:border-ink-secondary dark:hover:border-dark-text-secondary transition-colors"
+                className="flex-1 py-4 text-center border-r border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
               >
                 Journal
               </Link>
               <Link
                 href="/retrospective"
-                className="flex-1 py-4 text-center border border-border dark:border-dark-border text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:border-ink-secondary dark:hover:border-dark-text-secondary transition-colors"
+                className="flex-1 py-4 text-center text-xs tracking-widest uppercase text-ink-secondary dark:text-dark-text-secondary hover:bg-ink/5 dark:hover:bg-dark-text/5 transition-colors"
               >
                 Your month
               </Link>
