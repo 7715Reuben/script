@@ -192,7 +192,7 @@ export default function ChallengesPage() {
   const doneCount = completedDays.length;
 
   return (
-    <PaletteWrapper event="base">
+    <PaletteWrapper event={step === "complete" ? "weekly" : step === "reflecting" ? "evening" : "base"}>
       <AppShell>
         <div className="space-y-10 pb-12 animate-fade-up">
 

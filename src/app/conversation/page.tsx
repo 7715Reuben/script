@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
+import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { getTodayString } from "@/lib/utils";
 import type { Conversation } from "@/lib/supabase";
 
@@ -185,6 +186,7 @@ export default function ConversationPage() {
   const isEmpty = messages.length === 0 && !streamingText;
 
   return (
+    <PaletteWrapper event="evening">
     <AppShell>
       <div className="flex flex-col min-h-[calc(100dvh-3rem)]">
 
@@ -269,6 +271,7 @@ export default function ConversationPage() {
 
       </div>
     </AppShell>
+    </PaletteWrapper>
   );
 }
 

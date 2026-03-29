@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
+import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import type { MonthlyRetrospective, Profile } from "@/lib/supabase";
 
 function formatMonth(monthStr: string): string {
@@ -111,6 +112,7 @@ export default function RetrospectivePage() {
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
 
   return (
+    <PaletteWrapper event={generating ? "weekly" : current ? "weekly" : "base"}>
     <AppShell>
       <div className="space-y-10 pb-12 animate-fade-up">
 
@@ -194,5 +196,6 @@ export default function RetrospectivePage() {
 
       </div>
     </AppShell>
+    </PaletteWrapper>
   );
 }

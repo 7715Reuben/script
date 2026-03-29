@@ -88,7 +88,7 @@
 }
 
 @layer utilities {
-  /* Palette shift backgrounds */
+  /* Palette shift backgrounds — light mode */
   .palette-portrait {
     background-color: #FDF6E3;
     transition: background-color 1.2s ease-in-out;
@@ -114,7 +114,28 @@
     transition: background-color 1.2s ease-in-out;
   }
 
+  /* Dark mode palette — same emotional shift, stays dark */
   .dark .palette-base {
     background-color: #1A1714;
+  }
+
+  .dark .palette-portrait {
+    background-color: #1F1B12;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .dark .palette-morning {
+    background-color: #1D1416;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .dark .palette-evening {
+    background-color: #13151E;
+    transition: background-color 1.2s ease-in-out;
+  }
+
+  .dark .palette-weekly {
+    background-color: #1E1B11;
+    transition: background-color 1.2s ease-in-out;
   }
 }

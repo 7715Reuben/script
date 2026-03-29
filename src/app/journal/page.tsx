@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
+import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { getTodayString } from "@/lib/utils";
 import type { JournalEntry } from "@/lib/supabase";
 
@@ -92,6 +93,7 @@ export default function JournalPage() {
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
 
   return (
+    <PaletteWrapper event="morning">
     <AppShell>
       <div className="space-y-10 pb-12 animate-fade-up">
 
@@ -157,5 +159,6 @@ export default function JournalPage() {
 
       </div>
     </AppShell>
+    </PaletteWrapper>
   );
 }

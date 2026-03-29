@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
+import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { cn } from "@/lib/utils";
 import type { Commitment } from "@/lib/supabase";
 
@@ -61,6 +62,7 @@ export default function CommitmentsPage() {
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
 
   return (
+    <PaletteWrapper event="base">
     <AppShell>
       <div className="space-y-10 pb-8 animate-fade-up">
 
@@ -137,5 +139,6 @@ export default function CommitmentsPage() {
 
       </div>
     </AppShell>
+    </PaletteWrapper>
   );
 }

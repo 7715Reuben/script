@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
@@ -18,6 +18,24 @@ function CheckinContent() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [pronouns, setPronouns] = useState<Pronouns>("they");
+  const [portrait, setPortrait] = useState("");
+
+  // Load pronouns on mount so the prompt renders correctly before submit
+  useEffect(() => {
+    async function loadProfile() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("pronouns, portrait")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.pronouns) setPronouns(data.pronouns);
+      if (data?.portrait) setPortrait(data.portrait);
+    }
+    loadProfile();
+  }, []);
 
   const paletteEvent: PaletteEvent = done
     ? type === "morning" ? "morning" : "evening"
@@ -33,8 +51,7 @@ function CheckinContent() {
     if (!user) { router.push("/onboarding"); return; }
 
     try {
-      const [profileRes, commitmentsRes, logsRes] = await Promise.all([
-        supabase.from("profiles").select("portrait, pronouns").eq("user_id", user.id).single(),
+      const [commitmentsRes, logsRes] = await Promise.all([
         type === "evening"
           ? supabase.from("commitments").select("*").eq("user_id", user.id).order("position")
           : Promise.resolve({ data: [] }),
@@ -42,9 +59,6 @@ function CheckinContent() {
           ? supabase.from("commitment_logs").select("*").eq("user_id", user.id).eq("date", getTodayString())
           : Promise.resolve({ data: [] }),
       ]);
-
-      const profile = profileRes.data;
-      if (profile?.pronouns) setPronouns(profile.pronouns);
 
       const commitmentContext = (commitmentsRes.data || []).map((c: { id: string; content: string }) => {
         const log = (logsRes.data || []).find((l: { commitment_id: string; kept: boolean }) => l.commitment_id === c.id);
@@ -57,8 +71,8 @@ function CheckinContent() {
         body: JSON.stringify({
           type,
           content,
-          portrait: profile?.portrait || "",
-          pronouns: profile?.pronouns || "they",
+          portrait,
+          pronouns,
           commitments: commitmentContext,
         }),
       });
