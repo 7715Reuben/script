@@ -38,6 +38,8 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
   const router = useRouter();
   const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
   const [savingPronouns, setSavingPronouns] = useState(false);
+  const [portraitPublic, setPortraitPublic] = useState(profile.portrait_public ?? false);
+  const [togglingPublic, setTogglingPublic] = useState(false);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -48,6 +50,35 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
   const lastCheckin = todaysCheckins[todaysCheckins.length - 1];
   const paletteEvent = weeklyReflection ? "weekly" : "base";
+
+  async function handlePortraitPublicToggle() {
+    if (togglingPublic) return;
+    setTogglingPublic(true);
+    const next = !portraitPublic;
+    setPortraitPublic(next);
+    const supabase = createClient();
+
+    if (next) {
+      // Tag the portrait on first publish
+      try {
+        const res = await fetch("/api/portrait-tags", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ portrait: profile.portrait }),
+        });
+        const data = await res.json();
+        await supabase
+          .from("profiles")
+          .update({ portrait_public: true, portrait_tags: data.tags })
+          .eq("id", profile.id);
+      } catch {
+        await supabase.from("profiles").update({ portrait_public: true }).eq("id", profile.id);
+      }
+    } else {
+      await supabase.from("profiles").update({ portrait_public: false }).eq("id", profile.id);
+    }
+    setTogglingPublic(false);
+  }
 
   async function handlePronounChange(next: Pronouns) {
     if (next === pronouns || savingPronouns) return;
@@ -195,6 +226,42 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
                 </button>
               ))}
             </div>
+          </section>
+
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
+                  Anonymous portrait feed
+                </p>
+                <p className="text-[0.8rem] text-ink-faint dark:text-dark-text-secondary leading-relaxed">
+                  {portraitPublic
+                    ? "Your portrait is visible anonymously."
+                    : "Share your portrait. No name. No photo."}
+                </p>
+              </div>
+              <button
+                onClick={handlePortraitPublicToggle}
+                disabled={togglingPublic}
+                className={cn(
+                  "flex-shrink-0 w-10 h-6 rounded-full transition-all duration-200 relative",
+                  portraitPublic ? "bg-ink dark:bg-dark-text" : "bg-border dark:bg-dark-border"
+                )}
+              >
+                <span className={cn(
+                  "absolute top-1 w-4 h-4 rounded-full bg-bone dark:bg-dark-bg transition-all duration-200",
+                  portraitPublic ? "left-5" : "left-1"
+                )} />
+              </button>
+            </div>
+            {portraitPublic && (
+              <Link
+                href="/feed"
+                className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary transition-colors"
+              >
+                Browse the feed →
+              </Link>
+            )}
           </section>
 
           <button

@@ -16,6 +16,8 @@ export type Profile = {
   portrait: string;
   pronouns: Pronouns;
   name: string | null;
+  portrait_public: boolean;
+  portrait_tags: string[] | null;
   created_at: string;
   updated_at: string;
 };
