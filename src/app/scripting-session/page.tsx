@@ -34,7 +34,7 @@ export default function ScriptingSessionPage() {
       if (!user) { router.push("/onboarding"); return; }
       const { data } = await supabase
         .from("profiles")
-        .select("id, portrait, pronouns, user_id")
+        .select("id, portrait, pronouns, user_id, premium")
         .eq("user_id", user.id)
         .single();
       setProfile(data);
