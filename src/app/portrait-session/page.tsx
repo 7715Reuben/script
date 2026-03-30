@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
+import { PremiumGate } from "@/components/ui/PremiumGate";
 
 type Step = "pick" | "chat" | "synthesizing" | "review" | "done";
 type Message = { role: "user" | "assistant"; content: string };
@@ -30,6 +31,7 @@ export default function PortraitSessionPage() {
   const [addition, setAddition] = useState("");
   const [profile, setProfile] = useState<{ id: string; portrait: string; pronouns: string; user_id: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [premium, setPremium] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -38,8 +40,9 @@ export default function PortraitSessionPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/onboarding"); return; }
-      const { data } = await supabase.from("profiles").select("id, portrait, pronouns, user_id").eq("user_id", user.id).single();
+      const { data } = await supabase.from("profiles").select("id, portrait, pronouns, user_id, premium").eq("user_id", user.id).single();
       setProfile(data);
+      setPremium(data?.premium !== false);
       setLoading(false);
     }
     load();
@@ -172,6 +175,18 @@ export default function PortraitSessionPage() {
   }
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
+
+  if (!premium) return (
+    <PaletteWrapper event="portrait">
+      <AppShell>
+        <PremiumGate
+          feature="Portrait Sessions"
+          description="Guided deep-dives that add specificity to your portrait — her mornings, her work, her relationships, her voice."
+          example="I want to explore what her mornings look like. Does she rise before anyone else? What does she reach for first — silence, movement, words?"
+        />
+      </AppShell>
+    </PaletteWrapper>
+  );
 
   return (
     <PaletteWrapper event="portrait">

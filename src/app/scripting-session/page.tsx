@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
+import { PremiumGate } from "@/components/ui/PremiumGate";
 
 type Step = "write" | "reading" | "reflect" | "done";
 
@@ -21,8 +22,10 @@ export default function ScriptingSessionPage() {
   const [reflection, setReflection] = useState<Reflection | null>(null);
   const [profile, setProfile] = useState<{ id: string; portrait: string; pronouns: string; user_id: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [premium, setPremium] = useState(true);
   const [addingToPortrait, setAddingToPortrait] = useState(false);
   const [addedToPortrait, setAddedToPortrait] = useState(false);
+  const [readError, setReadError] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -35,6 +38,7 @@ export default function ScriptingSessionPage() {
         .eq("user_id", user.id)
         .single();
       setProfile(data);
+      setPremium(data?.premium !== false);
       setLoading(false);
     }
     load();
@@ -59,6 +63,7 @@ export default function ScriptingSessionPage() {
       setReflection(data);
       setStep("reflect");
     } catch {
+      setReadError(true);
       setStep("write");
     }
   }
@@ -83,6 +88,16 @@ export default function ScriptingSessionPage() {
   }
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
+
+  if (!premium) return (
+    <PaletteWrapper event="base">
+      <AppShell><PremiumGate
+        feature="Scripting sessions"
+        description="Write as your future self — first person, present tense. AI reflects back what felt genuinely true, what felt like performance, and what it noticed that isn't in your portrait yet."
+        example="The part about the morning was real — specific, unhurried, like you'd already lived it. That's not something you invented; that's something you already know about yourself."
+      /></AppShell>
+    </PaletteWrapper>
+  );
 
   return (
     <PaletteWrapper event={step === "reflect" ? "evening" : "base"}>
@@ -133,6 +148,11 @@ export default function ScriptingSessionPage() {
                 {script.trim().length > 0 && script.trim().length < 50 && (
                   <p className="text-center text-xs text-ink-faint dark:text-dark-text-secondary mt-3">
                     Keep going — say more than this
+                  </p>
+                )}
+                {readError && (
+                  <p className="text-center text-xs text-ink-faint dark:text-dark-text-secondary mt-3">
+                    Something interrupted the reading. Try again.
                   </p>
                 )}
               </div>

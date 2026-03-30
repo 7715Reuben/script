@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
+import { PremiumGate } from "@/components/ui/PremiumGate";
 import { getTodayString } from "@/lib/utils";
 import type { Conversation } from "@/lib/supabase";
 
@@ -18,11 +19,14 @@ const OPENING_PROMPTS = [
   "Tell me what you see in me right now.",
 ];
 
+const CONVERSATION_EXAMPLE = `Something in the way you asked that suggests you already know the answer. You're not confused — you're hoping to be talked out of what you already know you need to do. What would she actually say here?`;
+
 export default function ConversationPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [premium, setPremium] = useState(true);
   const [responding, setResponding] = useState(false);
   const [streamingText, setStreamingText] = useState("");
   const [context, setContext] = useState<{
@@ -94,6 +98,7 @@ export default function ConversationPage() {
         pronouns: profileRes.data?.pronouns ?? "they",
         userId: user.id,
       });
+      setPremium(profileRes.data?.premium !== false);
       setLoading(false);
     }
     load();
@@ -182,6 +187,16 @@ export default function ConversationPage() {
   }
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
+
+  if (!premium) return (
+    <PaletteWrapper event="evening">
+      <AppShell><PremiumGate
+        feature="Talk to Script"
+        description="A conversation with an AI that has read your portrait, your check-ins, your journal — and speaks to you like the person you're becoming."
+        example={CONVERSATION_EXAMPLE}
+      /></AppShell>
+    </PaletteWrapper>
+  );
 
   const isEmpty = messages.length === 0 && !streamingText;
 

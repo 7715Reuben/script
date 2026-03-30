@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { getTodayString } from "@/lib/utils";
+import { PremiumGate } from "@/components/ui/PremiumGate";
 
 type ChallengeDay = { day: number; action: string };
 
@@ -40,7 +41,9 @@ export default function ChallengesPage() {
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [profile, setProfile] = useState<{ portrait: string; pronouns: string; user_id: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [premium, setPremium] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(false);
   const [duration, setDuration] = useState<7 | 21>(7);
   const today = getTodayString();
 
@@ -51,7 +54,7 @@ export default function ChallengesPage() {
       if (!user) { router.push("/onboarding"); return; }
 
       const [profileRes, challengeRes] = await Promise.all([
-        supabase.from("profiles").select("portrait, pronouns, user_id").eq("user_id", user.id).single(),
+        supabase.from("profiles").select("portrait, pronouns, user_id, premium").eq("user_id", user.id).single(),
         supabase
           .from("identity_challenges")
           .select("*")
@@ -62,6 +65,7 @@ export default function ChallengesPage() {
       ]);
 
       setProfile(profileRes.data);
+      setPremium(profileRes.data?.premium !== false);
 
       if (challengeRes.data) {
         const c = challengeRes.data as Challenge;
@@ -124,6 +128,7 @@ export default function ChallengesPage() {
       setCompletedDays([]);
       setStep("active");
     } catch {
+      setGenerateError(true);
       setStep("picking");
     } finally {
       setGenerating(false);
@@ -187,6 +192,18 @@ export default function ChallengesPage() {
   }
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
+
+  if (!premium) return (
+    <PaletteWrapper event="base">
+      <AppShell>
+        <PremiumGate
+          feature="Identity Challenges"
+          description="7 or 21-day micro-challenges generated from your specific portrait — not generic, tied directly to who you said you were becoming."
+          example="Day 4 — Speak first in one room you usually stay quiet in. Notice what she would have said."
+        />
+      </AppShell>
+    </PaletteWrapper>
+  );
 
   const currentDay = challenge ? getDayNumber(challenge.started_at, today) : 0;
   const doneCount = completedDays.length;
@@ -258,12 +275,17 @@ export default function ChallengesPage() {
                 </p>
               </div>
               <button
-                onClick={generate}
+                onClick={() => { setGenerateError(false); generate(); }}
                 disabled={generating}
                 className="w-full py-4 bg-ink dark:bg-dark-text text-bone dark:text-dark-bg text-sm tracking-widest uppercase disabled:opacity-50"
               >
                 Generate my challenge
               </button>
+              {generateError && (
+                <p className="text-center text-xs text-ink-faint dark:text-dark-text-secondary mt-3">
+                  Something interrupted the generation. Try again.
+                </p>
+              )}
             </div>
           )}
 

@@ -18,6 +18,7 @@ export type Profile = {
   name: string | null;
   portrait_public: boolean;
   portrait_tags: string[] | null;
+  premium: boolean;
   created_at: string;
   updated_at: string;
 };
