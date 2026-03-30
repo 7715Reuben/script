@@ -111,54 +111,54 @@
   .mesh-blob-2 { animation: mesh-float-2 28s ease-in-out infinite; }
   .mesh-blob-3 { animation: mesh-float-3 34s ease-in-out infinite; }
 
-  /* Palette shift backgrounds — light mode (cherry blossom base) */
+  /* Palette shift backgrounds — light mode (blush + blue) */
   .palette-portrait {
-    background-color: #FDE0EE;  /* deep rose-sakura — ceremonial, becoming */
+    background-color: #FFE4EF;  /* warm blush rose — ceremonial, becoming */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-morning {
-    background-color: #F5EEFB;  /* pale lavender-blossom — new day opening */
+    background-color: #EDF5FF;  /* soft periwinkle blue — new day opening */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-evening {
-    background-color: #EAE6F5;  /* twilight lavender — introspective, quiet */
+    background-color: #E6EDF8;  /* deeper slate blue — introspective, quiet */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-weekly {
-    background-color: #FDE8F3;  /* vivid sakura bloom — celebratory */
+    background-color: #FFE8F2;  /* vivid sakura — celebratory */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-base {
-    background-color: #FAF0F4;  /* cherry blossom base */
+    background-color: #FEF6FA;  /* whisper blush base */
     transition: background-color 1.2s ease-in-out;
   }
 
-  /* Dark mode palette — deep twilight base, emotional shifts stay visible */
+  /* Dark mode palette — deep twilight base */
   .dark .palette-base {
-    background-color: #110C1A;
+    background-color: #0C0818;
   }
 
   .dark .palette-portrait {
-    background-color: #1E0D1C;  /* deep rose-twilight */
+    background-color: #1C0820;  /* deep rose-twilight */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-morning {
-    background-color: #160C22;  /* dark lavender-twilight */
+    background-color: #0C1030;  /* dark periwinkle-twilight */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-evening {
-    background-color: #090818;  /* pure deep twilight — darkest, most inward */
+    background-color: #060818;  /* pure deep twilight — darkest, most inward */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-weekly {
-    background-color: #1E0818;  /* dark crimson-twilight — rich, celebratory */
+    background-color: #1A0818;  /* dark crimson-twilight — rich, celebratory */
     transition: background-color 1.2s ease-in-out;
   }
 }

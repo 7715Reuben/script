@@ -10,30 +10,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base palette — light default (cherry blossom)
-        bone: "#FAF0F4",
-        "bone-dark": "#F2E2EB",
-        ink: "#1C1128",
-        "ink-secondary": "#6B4D62",
-        "ink-faint": "#A888A0",
-        border: "#E8D4DF",
+        // Base palette — light default (blush pink + dusty blue)
+        bone: "#FEF6FA",
+        "bone-dark": "#F8EAF2",
+        ink: "#2E5070",
+        "ink-secondary": "#5A7A98",
+        "ink-faint": "#8AAABF",
+        border: "#E4CED8",
 
         // Event palettes — light mode
-        "portrait-bg": "#FDE0EE",   // deep rose-sakura — the moment of becoming
-        "portrait-accent": "#B84870",
-        "morning-bg": "#F5EEFB",    // pale lavender-blossom — new day opening
-        "morning-accent": "#8050A8",
-        "evening-bg": "#EAE6F5",    // twilight lavender — introspective, quieter
-        "evening-accent": "#4A3890",
-        "weekly-bg": "#FDE8F3",     // vivid sakura in full bloom — celebratory
-        "weekly-accent": "#A03868",
+        "portrait-bg": "#FFE4EF",   // warm blush rose — ceremonial, becoming
+        "portrait-accent": "#B03870",
+        "morning-bg": "#EDF5FF",    // soft periwinkle blue — new day opening
+        "morning-accent": "#4870A0",
+        "evening-bg": "#E6EDF8",    // deeper slate blue — introspective, quiet
+        "evening-accent": "#385888",
+        "weekly-bg": "#FFE8F2",     // vivid sakura — celebratory
+        "weekly-accent": "#983868",
 
-        // Dark mode equivalents (deep twilight)
-        "dark-bg": "#110C1A",
-        "dark-surface": "#1C1528",
-        "dark-border": "#2E2040",
-        "dark-text": "#F5E0EA",
-        "dark-text-secondary": "#C4A0B8",
+        // Dark mode (deep twilight)
+        "dark-bg": "#0C0818",
+        "dark-surface": "#181028",
+        "dark-border": "#281840",
+        "dark-text": "#F8E8F2",
+        "dark-text-secondary": "#C0A0C0",
       },
       fontFamily: {
         sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],

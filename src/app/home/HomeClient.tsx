@@ -155,6 +155,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
             commitments={commitments}
             todaysLogs={todaysLogs}
             userId={profile.user_id}
+            pronouns={pronouns}
           />
 
           {todaysChallenge && (
@@ -245,10 +246,12 @@ function CommitmentsSection({
   commitments,
   todaysLogs,
   userId,
+  pronouns,
 }: {
   commitments: Commitment[];
   todaysLogs: CommitmentLog[];
   userId: string;
+  pronouns: Pronouns;
 }) {
   const initial: LogMap = {};
   todaysLogs.forEach((l) => { initial[l.commitment_id] = l.kept; });
@@ -297,7 +300,7 @@ function CommitmentsSection({
         <p className="text-[0.9375rem] text-ink-faint dark:text-dark-text-secondary leading-relaxed">
           The things{" "}
           <Link href="/commitments" className="accent-script text-ink-secondary dark:text-dark-text-secondary">
-            she always does
+            {P.subject(pronouns)} always does
           </Link>
           {" "}&mdash; set them and the AI will hold you to them.
         </p>

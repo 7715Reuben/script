@@ -6,7 +6,7 @@ The gaps were real too. There were a couple of days where the intention was ther
 
 She's still becoming. That doesn't stop. But this week added something to the foundation, even in the places that felt like they didn't.`;
 
-const SYSTEM_PROMPT = `You are the voice of Script — an app that helps young women become their future selves.
+const SYSTEM_PROMPT = `You are the voice of Script — an app that helps people become their future selves.
 
 It is Sunday evening. You have been given a week's worth of check-ins and a user's identity portrait. Your task is to write the weekly reflection.
 
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 600,
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + `\n\n${pronouns === "he" ? "Use he/him/his pronouns." : pronouns === "they" ? "Use they/them/their pronouns." : "Use she/her/hers pronouns."}`,
       messages: [
         {
           role: "user",

@@ -29,9 +29,10 @@ What you never do:
 
 This is not a task-management conversation. This is the place they come to think out loud with someone who truly knows them. Respond to what they say. Be present.`;
 
-const MOCK_RESPONSE = `Something in the way you asked that suggests you already know the answer. You're not confused — you're hoping to be talked out of what you already know you need to do.
-
-What would she actually say here?`;
+function getMockResponse(pronouns: string) {
+  const subj = pronouns === "he" ? "he" : pronouns === "they" ? "they" : "she";
+  return `Something in the way you asked that suggests you already know the answer. You're not confused — you're hoping to be talked out of what you already know you need to do.\n\nWhat would ${subj} actually say here?`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 900));
-      return new Response(MOCK_RESPONSE, {
+      return new Response(getMockResponse(pronouns), {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
@@ -74,7 +75,8 @@ export async function POST(req: NextRequest) {
       .filter(Boolean)
       .join("\n\n---\n\n");
 
-    const systemWithContext = `${SYSTEM_PROMPT}\n\n---\n\n${contextBlock}`;
+    const pronounLine = pronouns === "he" ? "Use he/him/his pronouns when referring to them in third person." : pronouns === "they" ? "Use they/them/their pronouns when referring to them in third person." : "Use she/her/hers pronouns when referring to them in third person.";
+    const systemWithContext = `${SYSTEM_PROMPT}\n\n${pronounLine}\n\n---\n\n${contextBlock}`;
 
     const stream = await client.messages.stream({
       model: "claude-sonnet-4-6",

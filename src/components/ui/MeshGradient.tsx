@@ -4,22 +4,22 @@ import { useState, useEffect } from "react";
 import type { PaletteEvent } from "./PaletteWrapper";
 
 // Each event gets 3 blob colours — [top-left, bottom-right, centre]
-// Light mode: cherry blossom pinks and twilight purples
+// Light mode: blush pinks + dusty blues — never harsh, always breathable
 const LIGHT: Record<PaletteEvent, [string, string, string]> = {
-  base:    ["#E8C0D4", "#D4A8C4", "#F0D0E4"],  // soft cherry blossom
-  portrait:["#E898C0", "#D06090", "#F0B8D4"],  // deep rose-sakura — ceremonial
-  morning: ["#C8A8E8", "#A878D0", "#DCC0F4"],  // lavender-blossom — new day
-  evening: ["#9898D0", "#7070B8", "#B8B0E0"],  // twilight lavender — inward
-  weekly:  ["#E880B8", "#C85898", "#F0A8D0"],  // vivid sakura — celebratory
+  base:    ["#F0C8DC", "#B8C8E8", "#E4C0D8"],  // blush pink + dusty blue
+  portrait:["#F0A8C8", "#D87098", "#F8C0DC"],  // warm blush rose — ceremonial
+  morning: ["#A8C4E8", "#7898D0", "#C8D8F4"],  // periwinkle blue — new day
+  evening: ["#8090C0", "#6070A8", "#A8B0D8"],  // slate blue — introspective
+  weekly:  ["#F0A0C8", "#D85898", "#F8B8D8"],  // vivid sakura — celebratory
 };
 
-// Dark mode: deep twilight purples with cherry blossom glow
+// Dark mode: deep twilight purples with soft cherry glow
 const DARK: Record<PaletteEvent, [string, string, string]> = {
-  base:    ["#3A1838", "#2A1048", "#481840"],  // deep twilight purple
-  portrait:["#4A1030", "#380828", "#581838"],  // deep rose-twilight
-  morning: ["#2A1048", "#1C0838", "#381860"],  // dark lavender-twilight
-  evening: ["#0C0828", "#080620", "#141040"],  // pure deep twilight — darkest
-  weekly:  ["#440828", "#320620", "#540830"],  // dark crimson-twilight
+  base:    ["#380848", "#0C2040", "#280838"],  // deep twilight
+  portrait:["#480828", "#380620", "#580838"],  // deep rose-twilight
+  morning: ["#0C1040", "#080830", "#181050"],  // dark periwinkle-twilight
+  evening: ["#060818", "#040610", "#0A0828"],  // pure deep twilight — darkest
+  weekly:  ["#400820", "#300618", "#500828"],  // dark crimson-twilight
 };
 
 interface MeshGradientProps {

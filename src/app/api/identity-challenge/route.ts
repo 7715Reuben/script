@@ -45,7 +45,7 @@ const MOCK_CHALLENGE_7 = {
   days: [
     { day: 1, action: "Spend the first 10 minutes of your morning in silence before reaching for your phone." },
     { day: 2, action: "Say no to one thing today that you would usually say yes to out of obligation." },
-    { day: 3, action: "Write down three things you did this week that she would have done." },
+    { day: 3, action: "Write down three things you did this week that your future self would have done." },
     { day: 4, action: "Eat one meal today without any screen in front of you." },
     { day: 5, action: "Tell someone something true that you've been keeping to yourself." },
     { day: 6, action: "Do one thing today that is entirely for your own pleasure — nothing productive about it." },
@@ -58,31 +58,31 @@ const MOCK_CHALLENGE_21 = {
   days: [
     { day: 1, action: "Spend the first 10 minutes of your morning in silence before reaching for your phone." },
     { day: 2, action: "Say no to one thing today that you would usually say yes to out of obligation." },
-    { day: 3, action: "Write down three things you did this week that she would have done." },
+    { day: 3, action: "Write down three things you did this week that your future self would have done." },
     { day: 4, action: "Eat one meal today without any screen in front of you." },
     { day: 5, action: "Tell someone something true that you've been keeping to yourself." },
     { day: 6, action: "Do one thing today that is entirely for your own pleasure — nothing productive about it." },
     { day: 7, action: "Write a single sentence about who you were this week. Make it honest." },
     { day: 8, action: "Go somewhere alone today — a walk, a café, anywhere. No companion, no podcast." },
     { day: 9, action: "Cancel or decline something on your calendar that you've been dreading." },
-    { day: 10, action: "Dress today exactly as she would dress, even if you have nowhere to go." },
+    { day: 10, action: "Dress today as your future self would dress, even if you have nowhere to go." },
     { day: 11, action: "Do the thing you've been putting off for more than a week." },
     { day: 12, action: "Have a conversation today where you listen more than you speak." },
     { day: 13, action: "Write down what you are no longer available for. Keep it." },
     { day: 14, action: "Do something today that costs you comfort but costs you nothing else." },
     { day: 15, action: "Reach out to someone you've been meaning to reconnect with." },
-    { day: 16, action: "Remove one thing from your environment that doesn't belong in her life." },
+    { day: 16, action: "Remove one thing from your environment that doesn't belong in your future self's life." },
     { day: 17, action: "Set a boundary today — out loud, to an actual person." },
     { day: 18, action: "Create something today. Anything. Don't share it." },
     { day: 19, action: "Read or watch something that makes you think, not just feel." },
-    { day: 20, action: "Write a letter to yourself from her — what does she want you to know right now?" },
+    { day: 20, action: "Write a letter to yourself from your future self — what do they want you to know right now?" },
     { day: 21, action: "Look at the last 21 days and write one true sentence about who you became in them." },
   ],
 };
 
 const MOCK_REFLECTION = `Twenty-one days is long enough to see through performance. The first week you showed up with intention — the actions felt deliberate, even exciting. By the second week, the resistance started: the days where you marked nothing, where the challenge met something in your life that didn't want to move. That friction is the data. That's where the actual work is.
 
-What emerged clearly was that you don't struggle with knowing what she would do. You know. The gap is in the moment of choice — when the easier version is right there, and the portrait version requires something extra. The challenge didn't solve that. It just made it visible, which is the first step.
+What emerged clearly was that you don't struggle with knowing what your future self would do. You know. The gap is in the moment of choice — when the easier version is right there, and the portrait version requires something extra. The challenge didn't solve that. It just made it visible, which is the first step.
 
 Twenty-one days closer. Not finished — just more honest about the distance.`;
 
