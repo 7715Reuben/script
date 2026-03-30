@@ -16,10 +16,10 @@
 }
 
 .dark {
-  /* Mesh blob colours — dark mode: warmer, glowing */
-  --mesh-a: rgba(90, 72, 50, 0.45);
-  --mesh-b: rgba(70, 58, 44, 0.38);
-  --mesh-c: rgba(80, 62, 42, 0.32);
+  /* Mesh blob colours — dark mode: visible warm amber glow */
+  --mesh-a: rgba(180, 130, 60, 0.18);
+  --mesh-b: rgba(150, 100, 45, 0.14);
+  --mesh-c: rgba(160, 115, 50, 0.11);
 }
 
 @layer base {
