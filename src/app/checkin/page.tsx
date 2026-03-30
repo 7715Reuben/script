@@ -19,6 +19,7 @@ function CheckinContent() {
   const [error, setError] = useState("");
   const [pronouns, setPronouns] = useState<Pronouns>("they");
   const [portrait, setPortrait] = useState("");
+  const [name, setName] = useState<string | null>(null);
 
   // Load pronouns on mount so the prompt renders correctly before submit
   useEffect(() => {
@@ -28,11 +29,12 @@ function CheckinContent() {
       if (!user) return;
       const { data } = await supabase
         .from("profiles")
-        .select("pronouns, portrait")
+        .select("pronouns, portrait, name")
         .eq("user_id", user.id)
         .single();
       if (data?.pronouns) setPronouns(data.pronouns);
       if (data?.portrait) setPortrait(data.portrait);
+      if (data?.name) setName(data.name);
     }
     loadProfile();
   }, []);
@@ -73,6 +75,7 @@ function CheckinContent() {
           content,
           portrait,
           pronouns,
+          name,
           commitments: commitmentContext,
         }),
       });

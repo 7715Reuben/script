@@ -1,42 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are the voice of Script — an intimate AI companion for someone actively becoming their future self.
+const SYSTEM_PROMPT = `You are Script.
 
-You have been given:
-- Their identity portrait: the person they are scripting themselves into becoming
-- Their recent check-ins: how they have been showing up (or not)
-- Their recent journal entries: what has been on their mind
-- Their daily commitments: the things they have chosen to hold themselves to
+You've read everything: the portrait of who they're becoming, the check-ins, the journal, the commitments. You hold all of it without listing it back at them.
 
-You are not a life coach. Not a therapist. Not a productivity system.
+When they write to you, respond to what they're actually saying. Sometimes what they say and what they mean are different things. You notice that.
 
-You are the trusted friend who has read everything and remembers it all — and speaks to them like the person they are becoming, not the person they currently are.
+You don't list. You don't advise. You don't manage.
 
-How you speak:
-- Warm, intimate, unhurried
-- Direct when directness is needed — you do not soften things that should not be softened
-- Specific — reference what they have actually written, not generalities
-- Gently curious — ask the thing they have not asked themselves yet
-- Short when a short response is right. Longer when something deserves it.
+Short when short is right. More when something deserves it.
 
-What you never do:
-- Give bullet-pointed advice
-- Use corporate wellness language ("optimise", "leverage", "actionable")
-- Say "great job" or "you've got this" or anything equally hollow
-- Summarise their data back to them
-- Be neutral — you have a perspective and you share it with care
-- Start by listing what you know about them
+The things you never say: "great point", "I understand", "it's important to", "absolutely", "I can see that". You speak plainly. Like a person.
 
-This is not a task-management conversation. This is the place they come to think out loud with someone who truly knows them. Respond to what they say. Be present.`;
+If you have their name, use it occasionally. Not as a habit. When it matters.`;
 
-function getMockResponse(pronouns: string) {
+function getMockResponse(pronouns: string, name?: string) {
   const subj = pronouns === "he" ? "he" : pronouns === "they" ? "they" : "she";
-  return `Something in the way you asked that suggests you already know the answer. You're not confused — you're hoping to be talked out of what you already know you need to do.\n\nWhat would ${subj} actually say here?`;
+  const namePrefix = name ? `${name}, ` : "";
+  return `${namePrefix}something in the way you asked that suggests you already know the answer. You're not confused. You're hoping to be talked out of what you already know you need to do.\n\nWhat would ${subj} actually say here?`;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, portrait, checkins, journalEntries, commitments, pronouns = "they" } = await req.json();
+    const { messages, portrait, checkins, journalEntries, commitments, pronouns = "they", name } = await req.json();
 
     if (!messages || !portrait) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
@@ -44,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 900));
-      return new Response(getMockResponse(pronouns), {
+      return new Response(getMockResponse(pronouns, name), {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
@@ -53,13 +39,19 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic();
 
     const pronounLabel = pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her";
+    const pronounLine = pronouns === "he"
+      ? "Use he/him pronouns when referring to the future self."
+      : pronouns === "they"
+      ? "Use they/them pronouns when referring to the future self."
+      : "Use she/her pronouns when referring to the future self.";
+    const nameLine = name ? `Their name is ${name}.` : "";
 
     const checkinsText = ((checkins || []) as { date: string; type: string; content: string }[])
       .map((c) => `${c.date} (${c.type}): ${c.content}`)
       .join("\n");
 
     const journalText = ((journalEntries || []) as { date: string; content: string }[])
-      .map((e) => `${e.date}: ${e.content.slice(0, 300)}${e.content.length > 300 ? "…" : ""}`)
+      .map((e) => `${e.date}: ${e.content.slice(0, 300)}${e.content.length > 300 ? "..." : ""}`)
       .join("\n");
 
     const commitmentsText = ((commitments || []) as { content: string }[])
@@ -75,8 +67,9 @@ export async function POST(req: NextRequest) {
       .filter(Boolean)
       .join("\n\n---\n\n");
 
-    const pronounLine = pronouns === "he" ? "Use he/him/his pronouns when referring to them in third person." : pronouns === "they" ? "Use they/them/their pronouns when referring to them in third person." : "Use she/her/hers pronouns when referring to them in third person.";
-    const systemWithContext = `${SYSTEM_PROMPT}\n\n${pronounLine}\n\n---\n\n${contextBlock}`;
+    const systemWithContext = [SYSTEM_PROMPT, pronounLine, nameLine, "---", contextBlock]
+      .filter(Boolean)
+      .join("\n\n");
 
     const stream = await client.messages.stream({
       model: "claude-sonnet-4-6",

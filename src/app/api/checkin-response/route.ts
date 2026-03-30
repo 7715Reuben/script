@@ -1,38 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const MOCK_MORNING = "That's exactly the kind of thing she'd do without thinking twice about it. Today is already hers.";
-const MOCK_EVENING = "Showing up partially still counts — she doesn't require a perfect day to make progress. The gap you named isn't a failure, it's just information. She files it and moves on.";
+const MORNING_SYSTEM = `You are the voice of Script.
 
-const MORNING_SYSTEM = `You are the voice of Script — an app that helps young women become their future selves.
+You have the user's identity portrait. They've just written their morning intention: one thing they'll do today as the person they're becoming.
 
-A user has just submitted their morning intention: one thing they'll do today that their future self would do.
+Write one or two sentences back. No more.
 
-Your response:
-- 1–2 sentences only. Short. Warm. Specific to what they wrote.
-- Speak to them as though they are already that person, not becoming her.
-- Reference something from their identity portrait to make it feel personal — not generic affirmation.
-- Gentle and encouraging, but not over-excited. Not "Amazing!" Not "Love that!"
-- The tone of a wise friend who expected nothing less.
+Be specific to exactly what they wrote. Not a general affirmation about "showing up." The tone: someone who knows them and expected this. Not surprised. Not gushing. Just certain.
 
-Output only the response. No preamble.`;
+If you have their name, use it once, but only if it feels natural. Not as a greeting.
 
-const EVENING_SYSTEM = `You are the voice of Script — an app that helps users become their future selves.
+No "love that." No "amazing." No filler. Say the thing.
 
-A user has just submitted their evening reflection. They were asked: "Did you show up today? What got in the way?"
+Output only the response.`;
 
-Your response:
-- 2–3 sentences. Warm, honest, specific.
-- Acknowledge what they did show up for, even if partial.
-- If there was a gap, name it — not gently, not harshly, but directly. The gap is real. Don't minimise it.
-- Connect back to something specific in their identity portrait.
-- End on something that grounds them in who they're becoming, not where they fell short.
-- Never toxic positivity. Never harsh. The tone of someone who sees you clearly, believes in you completely, and won't let you off the hook.
+const EVENING_SYSTEM = `You are the voice of Script.
 
-Output only the response. No preamble.`;
+You have the user's identity portrait and their commitments. They've just reflected on their day.
+
+Write two or three sentences. Do all of this:
+- Acknowledge what they actually did, without over-praising it
+- If something slipped, name it plainly. Not cruelly. But don't cushion it into nothing.
+- Connect what they said to something specific in their portrait
+- End on something that grounds them in who she is becoming, not where they fell short
+
+The tone: a friend who has read everything and won't let you perform growth at her.
+
+If you have their name, use it once, where it actually lands.
+
+Output only the response.`;
+
+const MOCK_MORNING = `That's exactly the kind of thing she'd do without thinking twice about it. Today is already hers.`;
+const MOCK_EVENING = `Showing up partially still counts. The gap you named isn't a failure, it's information. She files it and moves on.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, content, portrait, pronouns = "they", commitments = [] } = await req.json();
+    const { type, content, portrait, pronouns = "they", commitments = [], name } = await req.json();
 
     if (!content || !portrait || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 800));
       const mockBase = type === "morning" ? MOCK_MORNING : MOCK_EVENING;
-      let mock = mockBase;
+      let mock = name ? mockBase.replace(/^That's/, `${name}, that's`) : mockBase;
       if (pronouns === "he") {
         mock = mock.replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He");
       } else if (pronouns === "they") {
@@ -54,10 +57,12 @@ export async function POST(req: NextRequest) {
     const client = new Anthropic();
 
     const pronounLine = pronouns === "he"
-      ? "Use he/him pronouns."
+      ? "Use he/him pronouns for the future self."
       : pronouns === "they"
-      ? "Use they/them pronouns."
-      : "Use she/her pronouns.";
+      ? "Use they/them pronouns for the future self."
+      : "Use she/her pronouns for the future self.";
+
+    const nameLine = name ? `Their name is ${name}.` : "";
 
     let commitmentBlock = "";
     if (type === "evening" && commitments.length > 0) {
@@ -65,10 +70,15 @@ export async function POST(req: NextRequest) {
         const status = c.kept === true ? "kept today" : c.kept === false ? "missed today" : "not logged";
         return `- "${c.content}" — ${status}`;
       }).join("\n");
-      commitmentBlock = `\n\nTheir daily commitments:\n${lines}\n\nIf any were missed, name them directly. Do not soften it. The gap between who they're becoming and what they actually did matters — name it with care but without cushioning it. If kept, acknowledge it specifically, not generically.`;
+      commitmentBlock = `\n\nTheir commitments today:\n${lines}\n\nIf any were missed, name them directly. Don't soften it.`;
     }
 
-    const systemPrompt = (type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM) + "\n\n" + pronounLine + commitmentBlock;
+    const systemPrompt = [
+      type === "morning" ? MORNING_SYSTEM : EVENING_SYSTEM,
+      pronounLine,
+      nameLine,
+    ].filter(Boolean).join("\n") + commitmentBlock;
+
     const poss = pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her";
     const userMessage =
       type === "morning"

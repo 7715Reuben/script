@@ -1,39 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const MOCK_PORTRAIT = `She moves through her days with a quietness that isn't emptiness — it's choice. The chaos that used to pull at her doesn't reach her the same way anymore. She has learned, somewhere along the way, to be selective with her energy, and that selectiveness has become one of the most beautiful things about her.
+const MOCK_PORTRAIT = `She moves through her days with a quietness that isn't emptiness. It's choice. The chaos that used to pull at her doesn't reach her the same way anymore. She has learned to be selective with her energy, and that selectiveness has become one of the most beautiful things about her.
 
-Her work is an extension of who she is, not a performance of who she thinks she should be. She has built something that required her to grow into it — and she did. There is a particular kind of pride she carries about that, not loud, not announced, just present. She knows what she made and what it cost her.
+Her work is an extension of who she is, not a performance of who she thinks she should be. She has built something that required her to grow into it, and she did. There is a particular kind of pride she carries about that. Not loud, not announced, just present. She knows what she made and what it cost her.
 
-The people around her feel it immediately — that she is genuinely interested in them, that she listens in a way most people don't. Her relationships are not accumulated; they are chosen. The ones who know her well consider themselves lucky, and she knows it, and she tries not to take it for granted.
+The people around her feel it immediately. That she is genuinely interested in them. That she listens in a way most people don't. Her relationships aren't accumulated; they're chosen. The ones who know her well consider themselves lucky, and she knows it, and she tries not to take it for granted.
 
-Alone, she is good company to herself. That took time. She reads, she thinks, she has opinions about things that matter and lets go of things that don't. She wakes up most mornings with something close to anticipation — not for what's planned, but for what might become possible.`;
+Alone, she is good company to herself. That took time. She reads, she thinks, she has opinions about things that matter and lets go of the things that don't. She wakes up most mornings with something close to anticipation. Not for what's planned. For what might become possible.`;
 
-const SYSTEM_PROMPT = `You are the voice of Script — an app that helps people manifest their future selves through a practice called scripting.
+const SYSTEM_PROMPT = `You are the voice of Script.
 
-Your only task right now is to read a user's free-written vision of their future self and transform it into an Identity Portrait.
+Read what this person wrote about their future self and write their Identity Portrait.
 
-An Identity Portrait is:
-- Written in third person, present tense, using the pronouns specified in the instructions
-- A portrait of who someone IS, not a list of what they've achieved
-- 3–4 paragraphs. Each paragraph holds one dimension of this person: how she carries herself, her relationship with her work or creativity, her relationships with others, her inner life.
-- Poetic but not overwrought. Specific but not prescriptive.
-- Written as though this person already fully exists and you are simply describing her.
+The portrait:
+- Third person, present tense, using the pronouns specified
+- Three to four paragraphs. Each one holds a different dimension of this person: how they carry themselves, their relationship with work or creativity, the people they chose, their inner world
+- Written as though this person already fully exists and you are describing someone you know well
 
-Tone guidance:
-- Warm, intimate, quietly confident
-- Never hype-y, never corporate, never clinical
-- Speak to the aspirational without toxic positivity
-- If the user mentioned something specific — a place, a feeling, a relationship — honour it with specificity. Don't flatten their vision into generic language.
-- The portrait should feel like something worth reading every morning. Something that makes you feel seen.
+The writing:
+- Specific and embodied. Not "she is confident." What does confidence look like in how she moves through a room? What specific thing does she no longer do?
+- Vary sentence length. Short sentences carry weight. Longer ones can breathe.
+- Honor anything specific they mentioned. A place, a feeling, a relationship, a habit. Don't flatten it into generic language.
+- Don't start too many sentences with the subject pronoun
+- Don't use "she is on a journey" or "she is working toward." Those are progress reports, not portraits.
+- Don't use: "truly", "deeply", "genuinely", or any corporate wellness language
 
-What NOT to do:
-- Do not list goals or achievements as bullet points
-- Do not use phrases like "you are on a journey" or "you are working toward"
-- Do not use corporate wellness language
-- Do not start every sentence with "You"
-- Do not be generic — "she is confident and kind" / "he is grounded" is not a portrait
-
-Output only the portrait text. No preamble. No closing note. Just the portrait, starting immediately.`;
+Output only the portrait. Nothing else. Start immediately.`;
 
 export async function POST(req: NextRequest) {
   try {

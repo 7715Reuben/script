@@ -35,6 +35,7 @@ export default function ConversationPage() {
     journalEntries: unknown[];
     commitments: unknown[];
     pronouns: string;
+    name: string | null;
     userId: string;
   } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -96,6 +97,7 @@ export default function ConversationPage() {
         journalEntries: journalRes.data ?? [],
         commitments: commitmentsRes.data ?? [],
         pronouns: profileRes.data?.pronouns ?? "they",
+        name: profileRes.data?.name ?? null,
         userId: user.id,
       });
       setPremium(profileRes.data?.premium !== false);
@@ -137,6 +139,7 @@ export default function ConversationPage() {
           journalEntries: context.journalEntries,
           commitments: context.commitments,
           pronouns: context.pronouns,
+          name: context.name,
         }),
       });
 

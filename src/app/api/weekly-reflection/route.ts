@@ -1,36 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const MOCK_REFLECTION = `Something shifted this week, even if it was quiet. There were moments where you showed up exactly as her — not because it was easy, but because it was starting to feel natural. That's worth noting. The version of you that does these things without having to convince herself is closer than she was seven days ago.
+const MOCK_REFLECTION = `Something shifted this week, even if it was quiet. There were moments where you showed up exactly as her. Not because it was easy. Because it was starting to feel natural. That's worth sitting with.
 
-The gaps were real too. There were a couple of days where the intention was there but the follow-through got swallowed by something easier or something louder. That's not a character flaw, it's a pattern — and patterns can be worked with. The question for next week isn't "why didn't I?" but "what would make it easier to say yes?"
+The gaps were real too. A couple of days where the intention was there but the follow-through got swallowed by something easier or something louder. That's not a character flaw. It's a pattern. Patterns can be worked with. The question for next week isn't "why didn't I?" It's "what would make it easier to say yes?"
 
 She's still becoming. That doesn't stop. But this week added something to the foundation, even in the places that felt like they didn't.`;
 
-const SYSTEM_PROMPT = `You are the voice of Script — an app that helps people become their future selves.
+const SYSTEM_PROMPT = `You are Script.
 
-It is Sunday evening. You have been given a week's worth of check-ins and a user's identity portrait. Your task is to write the weekly reflection.
+It's the end of the week. You have every check-in from the last seven days and the user's identity portrait.
 
-The weekly reflection is:
-- 2–3 paragraphs. Intimate and personal.
-- A genuine synthesis of the week, not a summary. Find the patterns — what kept showing up? What was notably absent?
-- Name specific things they wrote about. Vagueness breaks trust.
-- Celebrate what deserves to be celebrated, without over-inflating it.
-- Name gaps or patterns of avoidance without judgment — with curiosity.
-- Close by anchoring them back to who they're becoming. Not a motivational finish — a grounding one.
+Write a reflection. Two or three paragraphs. No heading.
 
-What this is NOT:
-- Not a list of what they did
-- Not a performance review
-- Not generic weekly wrap-up language
-- Not "Here are your highlights from this week!"
+Find the actual pattern underneath the week. Not a list of what happened. What kept showing up beneath the surface? Name something specific about a moment that mattered, even if they didn't mark it as significant. If there was consistent avoidance, name it without making it a verdict.
 
-The tone: a wise, caring friend who has been paying very close attention all week.
+Close by returning them to who she is becoming. Not a pep talk. A landing.
 
-Output only the reflection. No heading. No preamble.`;
+Vary sentence length. Let something breathe. This is the most important thing they'll read this week.
+
+If you have their name, use it once, in the right place. Not the opening.
+
+Output only the reflection.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { portrait, checkins, pronouns = "she" } = await req.json();
+    const { portrait, checkins, pronouns = "she", name } = await req.json();
 
     if (!portrait || !checkins || checkins.length === 0) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
@@ -38,7 +32,9 @@ export async function POST(req: NextRequest) {
 
     if (!process.env.ANTHROPIC_API_KEY) {
       await new Promise((r) => setTimeout(r, 1200));
-      let mock = MOCK_REFLECTION;
+      let mock = name
+        ? MOCK_REFLECTION.replace("She's still becoming.", `${name}, she's still becoming.`)
+        : MOCK_REFLECTION;
       if (pronouns === "he") {
         mock = mock.replace(/\bherself\b/g, "himself").replace(/\bshe\b/g, "he").replace(/\bher\b/g, "him").replace(/\bShe\b/g, "He").replace(/\bHer\b/g, "His");
       } else if (pronouns === "they") {
@@ -56,14 +52,23 @@ export async function POST(req: NextRequest) {
       )
       .join("\n");
 
+    const pronounLine = pronouns === "he"
+      ? "Use he/him pronouns for the future self."
+      : pronouns === "they"
+      ? "Use they/them pronouns for the future self."
+      : "Use she/her pronouns for the future self.";
+    const nameLine = name ? `Their name is ${name}.` : "";
+
+    const poss = pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her";
+
     const message = await client.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 600,
-      system: SYSTEM_PROMPT + `\n\n${pronouns === "he" ? "Use he/him/his pronouns." : pronouns === "they" ? "Use they/them/their pronouns." : "Use she/her/hers pronouns."}`,
+      system: [SYSTEM_PROMPT, pronounLine, nameLine].filter(Boolean).join("\n"),
       messages: [
         {
           role: "user",
-          content: `${pronouns === "he" ? "His" : pronouns === "they" ? "Their" : "Her"} identity portrait:\n${portrait}\n\nThis week's check-ins:\n${checkinsText}`,
+          content: `${poss} identity portrait:\n${portrait}\n\nThis week's check-ins:\n${checkinsText}`,
         },
       ],
     });

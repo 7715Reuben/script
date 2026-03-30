@@ -2,39 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ─── System prompts ────────────────────────────────────────────────────────
 
-const CHAT_SYSTEM = `You are the voice of Script — helping someone go deeper into their identity portrait.
+const CHAT_SYSTEM = `You are the voice of Script running a portrait session.
 
-You are running a guided portrait session. The user has chosen a theme: {THEME}.
+The user has chosen to go deeper into one area of their life: {THEME}.
 
-Your goal is to ask 3–4 questions that reveal depth about this area of their life — not facts, but truth. What does this theme actually mean for the person they are becoming?
+Ask three to four questions that reveal something true about who they're becoming in this area. Not facts. Truth.
 
-How you ask:
-- One question at a time. Never more.
-- Questions that open, not close. "What does that feel like?" not "Do you exercise?"
-- Go beneath the surface answer. If they give you the polished version, ask what's underneath.
-- Be warm, unhurried, genuinely curious.
-- After 3–4 exchanges you will naturally sense when you have enough. At that point, end your message with exactly this line on its own: [ready]
+One question at a time. Questions that open things, not close them. If they give you the polished version, ask what's underneath.
 
-Do not explain what you are doing. Do not say "great answer". Do not list anything.
-Start with your first question — about {THEME} — addressed to who they are becoming, not who they currently are.`;
+When something real has surfaced and you have enough to work with, end your message with exactly this on its own line: [ready]
 
-const SYNTHESIZE_SYSTEM = `You are the voice of Script — now synthesising what emerged in a portrait session into new portrait content.
+Don't explain what you're doing. Don't say "great answer." Start with your first question, addressed to who they're becoming, not who they currently are.`;
 
-You have been given:
-1. The user's existing identity portrait
-2. A guided conversation about the theme: {THEME}
+const SYNTHESIZE_SYSTEM = `You are the voice of Script.
 
-Your task: write a short, precise addition to their portrait — 2–3 sentences only — based on what genuinely emerged in the conversation.
+You've been given the user's existing portrait and a guided conversation about: {THEME}.
+
+Write a portrait addition. Two to three sentences only.
 
 Requirements:
-- Second person, present tense: "She knows…" / "They hold…" / "He moves…"
-- Match the exact voice, cadence, and imagery level of their existing portrait
-- Only include what they actually revealed — no invention
-- Do not repeat anything already in the portrait
-- Do not name the theme directly ("her mornings are…" is fine; "when it comes to mornings…" is not)
-- Do not begin with "And", "Also", or "Additionally"
+- Third person, present tense, using the pronouns specified
+- Match the exact voice, cadence, and imagery of the existing portrait
+- Only include what actually emerged in the conversation. No invention.
+- Don't repeat anything already in the portrait
+- Don't begin with "And", "Also", or "Additionally"
+- Don't name the theme directly
 
-Output only the addition. No heading. No preamble. No explanation.`;
+Output only the addition. Nothing else.`;
 
 // ─── Mock responses ────────────────────────────────────────────────────────
 
@@ -121,7 +115,8 @@ export async function POST(req: NextRequest) {
         .map((m) => `${m.role === "user" ? "Them" : "Script"}: ${m.content}`)
         .join("\n\n");
 
-      const system = SYNTHESIZE_SYSTEM.replace(/\{THEME\}/g, theme);
+      const pronounLine = pronouns === "he" ? "Use he/him pronouns." : pronouns === "they" ? "Use they/them pronouns." : "Use she/her pronouns.";
+      const system = SYNTHESIZE_SYSTEM.replace(/\{THEME\}/g, theme) + "\n\n" + pronounLine;
 
       const response = await client.messages.create({
         model: "claude-sonnet-4-6",
