@@ -88,6 +88,29 @@
 }
 
 @layer utilities {
+  /* Mesh gradient blob animations — three independent paths for organic feel */
+  @keyframes mesh-float-1 {
+    0%, 100% { transform: translate(0%, 0%) scale(1); }
+    30%       { transform: translate(7%, -8%) scale(1.06); }
+    65%       { transform: translate(-5%, 6%) scale(0.96); }
+  }
+
+  @keyframes mesh-float-2 {
+    0%, 100% { transform: translate(0%, 0%) scale(1); }
+    40%       { transform: translate(-8%, 6%) scale(1.05); }
+    72%       { transform: translate(6%, -4%) scale(0.97); }
+  }
+
+  @keyframes mesh-float-3 {
+    0%, 100% { transform: translate(0%, 0%) scale(1); }
+    25%       { transform: translate(6%, 9%) scale(1.04); }
+    58%       { transform: translate(-9%, -5%) scale(1.07); }
+  }
+
+  .mesh-blob-1 { animation: mesh-float-1 22s ease-in-out infinite; }
+  .mesh-blob-2 { animation: mesh-float-2 28s ease-in-out infinite; }
+  .mesh-blob-3 { animation: mesh-float-3 34s ease-in-out infinite; }
+
   /* Palette shift backgrounds — light mode */
   .palette-portrait {
     background-color: #FDF6E3;
