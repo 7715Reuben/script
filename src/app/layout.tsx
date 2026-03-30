@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { MeshBackground } from "@/components/ui/MeshBackground";
 
 export const metadata: Metadata = {
   title: "Script",
@@ -49,7 +50,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <MeshBackground />
+        {children}
+      </body>
     </html>
   );
 }
