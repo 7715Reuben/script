@@ -4,22 +4,22 @@ import { useState, useEffect } from "react";
 import type { PaletteEvent } from "./PaletteWrapper";
 
 // Each event gets 3 blob colours — [top-left, bottom-right, centre]
-// Light mode: soft, low-saturation tints
+// Light mode: cherry blossom pinks and twilight purples
 const LIGHT: Record<PaletteEvent, [string, string, string]> = {
-  base:    ["#C8B8A8", "#D4C4B4", "#BCA898"],
-  portrait:["#E8B840", "#D4941C", "#F5D070"],
-  morning: ["#D89090", "#C87070", "#EAB0A8"],
-  evening: ["#7888B8", "#5868A0", "#A0AECE"],
-  weekly:  ["#E0B030", "#C89818", "#F0CC60"],
+  base:    ["#E8C0D4", "#D4A8C4", "#F0D0E4"],  // soft cherry blossom
+  portrait:["#E898C0", "#D06090", "#F0B8D4"],  // deep rose-sakura — ceremonial
+  morning: ["#C8A8E8", "#A878D0", "#DCC0F4"],  // lavender-blossom — new day
+  evening: ["#9898D0", "#7070B8", "#B8B0E0"],  // twilight lavender — inward
+  weekly:  ["#E880B8", "#C85898", "#F0A8D0"],  // vivid sakura — celebratory
 };
 
-// Dark mode: deeper but still subtle — glow-like, not washed out
+// Dark mode: deep twilight purples with cherry blossom glow
 const DARK: Record<PaletteEvent, [string, string, string]> = {
-  base:    ["#3A2E24", "#2E2218", "#463A2C"],
-  portrait:["#5C4010", "#7A5518", "#40300C"],
-  morning: ["#5C2020", "#441818", "#6A2828"],
-  evening: ["#181E3C", "#10162C", "#222A50"],
-  weekly:  ["#584210", "#443208", "#6C5018"],
+  base:    ["#3A1838", "#2A1048", "#481840"],  // deep twilight purple
+  portrait:["#4A1030", "#380828", "#581838"],  // deep rose-twilight
+  morning: ["#2A1048", "#1C0838", "#381860"],  // dark lavender-twilight
+  evening: ["#0C0828", "#080620", "#141040"],  // pure deep twilight — darkest
+  weekly:  ["#440828", "#320620", "#540830"],  // dark crimson-twilight
 };
 
 interface MeshGradientProps {

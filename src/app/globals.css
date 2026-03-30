@@ -111,54 +111,54 @@
   .mesh-blob-2 { animation: mesh-float-2 28s ease-in-out infinite; }
   .mesh-blob-3 { animation: mesh-float-3 34s ease-in-out infinite; }
 
-  /* Palette shift backgrounds — light mode */
+  /* Palette shift backgrounds — light mode (cherry blossom base) */
   .palette-portrait {
-    background-color: #FDF6E3;
+    background-color: #FDE0EE;  /* deep rose-sakura — ceremonial, becoming */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-morning {
-    background-color: #FDF0EE;
+    background-color: #F5EEFB;  /* pale lavender-blossom — new day opening */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-evening {
-    background-color: #F0F2F8;
+    background-color: #EAE6F5;  /* twilight lavender — introspective, quiet */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-weekly {
-    background-color: #FBF5E6;
+    background-color: #FDE8F3;  /* vivid sakura bloom — celebratory */
     transition: background-color 1.2s ease-in-out;
   }
 
   .palette-base {
-    background-color: #F5F0EB;
+    background-color: #FAF0F4;  /* cherry blossom base */
     transition: background-color 1.2s ease-in-out;
   }
 
-  /* Dark mode palette — same emotional shift, stays dark */
+  /* Dark mode palette — deep twilight base, emotional shifts stay visible */
   .dark .palette-base {
-    background-color: #1A1714;
+    background-color: #110C1A;
   }
 
   .dark .palette-portrait {
-    background-color: #1F1B12;
+    background-color: #1E0D1C;  /* deep rose-twilight */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-morning {
-    background-color: #1D1416;
+    background-color: #160C22;  /* dark lavender-twilight */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-evening {
-    background-color: #13151E;
+    background-color: #090818;  /* pure deep twilight — darkest, most inward */
     transition: background-color 1.2s ease-in-out;
   }
 
   .dark .palette-weekly {
-    background-color: #1E1B11;
+    background-color: #1E0818;  /* dark crimson-twilight — rich, celebratory */
     transition: background-color 1.2s ease-in-out;
   }
 }

@@ -10,30 +10,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base palette — light default
-        bone: "#F5F0EB",
-        "bone-dark": "#EDE6DC",
-        ink: "#1A1714",
-        "ink-secondary": "#6B6460",
-        "ink-faint": "#9E9590",
-        border: "#E0D9D1",
+        // Base palette — light default (cherry blossom)
+        bone: "#FAF0F4",
+        "bone-dark": "#F2E2EB",
+        ink: "#1C1128",
+        "ink-secondary": "#6B4D62",
+        "ink-faint": "#A888A0",
+        border: "#E8D4DF",
 
-        // Event palettes
-        "portrait-bg": "#FDF6E3",
-        "portrait-accent": "#C9943A",
-        "morning-bg": "#FDF0EE",
-        "morning-accent": "#C4827A",
-        "evening-bg": "#F0F2F8",
-        "evening-accent": "#5C6E94",
-        "weekly-bg": "#FBF5E6",
-        "weekly-accent": "#B8923A",
+        // Event palettes — light mode
+        "portrait-bg": "#FDE0EE",   // deep rose-sakura — the moment of becoming
+        "portrait-accent": "#B84870",
+        "morning-bg": "#F5EEFB",    // pale lavender-blossom — new day opening
+        "morning-accent": "#8050A8",
+        "evening-bg": "#EAE6F5",    // twilight lavender — introspective, quieter
+        "evening-accent": "#4A3890",
+        "weekly-bg": "#FDE8F3",     // vivid sakura in full bloom — celebratory
+        "weekly-accent": "#A03868",
 
-        // Dark mode equivalents
-        "dark-bg": "#1A1714",
-        "dark-surface": "#231F1C",
-        "dark-border": "#2E2926",
-        "dark-text": "#F5F0EB",
-        "dark-text-secondary": "#8A847E",
+        // Dark mode equivalents (deep twilight)
+        "dark-bg": "#110C1A",
+        "dark-surface": "#1C1528",
+        "dark-border": "#2E2040",
+        "dark-text": "#F5E0EA",
+        "dark-text-secondary": "#C4A0B8",
       },
       fontFamily: {
         sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
