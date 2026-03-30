@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
@@ -8,7 +8,7 @@ import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { createClient } from "@/lib/supabase";
 import type { Profile, Checkin, WeeklyReflection, Pronouns, Commitment, CommitmentLog } from "@/lib/supabase";
-import { isMorning, P, cn, getTodayString } from "@/lib/utils";
+import { isMorning, isSunday, P, cn, getTodayString, getMondayOfWeek } from "@/lib/utils";
 
 interface HomeClientProps {
   profile: Profile;
@@ -16,6 +16,7 @@ interface HomeClientProps {
   weeklyReflection: WeeklyReflection | null;
   commitments: Commitment[];
   todaysLogs: CommitmentLog[];
+  weekCheckins: Checkin[];
 }
 
 const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
@@ -24,11 +25,51 @@ const PRONOUN_OPTIONS: { value: Pronouns; label: string }[] = [
   { value: "he", label: "he / him" },
 ];
 
-export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitments, todaysLogs }: HomeClientProps) {
+export function HomeClient({ profile, todaysCheckins, weeklyReflection: initialWeeklyReflection, commitments, todaysLogs, weekCheckins }: HomeClientProps) {
   const morning = isMorning();
   const router = useRouter();
   const [pronouns, setPronouns] = useState<Pronouns>(profile.pronouns ?? "they");
   const [savingPronouns, setSavingPronouns] = useState(false);
+  const [weeklyReflection, setWeeklyReflection] = useState<WeeklyReflection | null>(initialWeeklyReflection);
+
+  // Auto-generate weekly reflection on Sundays if it doesn't exist yet
+  useEffect(() => {
+    if (!isSunday() || weeklyReflection || weekCheckins.length === 0) return;
+
+    async function generate() {
+      try {
+        const res = await fetch("/api/weekly-reflection", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            portrait: profile.portrait,
+            checkins: weekCheckins,
+            pronouns: profile.pronouns ?? "they",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.reflection) return;
+
+        const supabase = createClient();
+        const { data: saved } = await supabase
+          .from("weekly_reflections")
+          .insert({
+            user_id: profile.user_id,
+            week_start: getMondayOfWeek(),
+            content: data.reflection,
+          })
+          .select()
+          .single();
+
+        if (saved) setWeeklyReflection(saved);
+      } catch {
+        // silent — it'll retry next time
+      }
+    }
+
+    generate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSignOut() {
     const supabase = createClient();

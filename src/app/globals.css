@@ -8,6 +8,18 @@
   --font-dm-sans: 'DM Sans', system-ui, sans-serif;
   --font-playfair: 'Playfair Display', Georgia, serif;
   --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+
+  /* Mesh blob colours — light mode */
+  --mesh-a: rgba(180, 165, 148, 0.35);
+  --mesh-b: rgba(165, 155, 140, 0.28);
+  --mesh-c: rgba(155, 145, 132, 0.22);
+}
+
+.dark {
+  /* Mesh blob colours — dark mode: warmer, glowing */
+  --mesh-a: rgba(90, 72, 50, 0.45);
+  --mesh-b: rgba(70, 58, 44, 0.38);
+  --mesh-c: rgba(80, 62, 42, 0.32);
 }
 
 @layer base {
