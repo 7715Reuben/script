@@ -19,7 +19,7 @@ const OPENING_PROMPTS = [
   "Tell me what you see in me right now.",
 ];
 
-const CONVERSATION_EXAMPLE = `Something in the way you asked that suggests you already know the answer. You're not confused — you're hoping to be talked out of what you already know you need to do. What would she actually say here?`;
+const CONVERSATION_EXAMPLE = `Something in the way you asked that suggests you already know the answer. You're not confused. You're hoping to be talked out of what you already know you need to do. What would your future self actually say here?`;
 
 export default function ConversationPage() {
   const router = useRouter();

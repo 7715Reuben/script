@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { P, type Pronouns } from "@/lib/utils";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { PremiumGate } from "@/components/ui/PremiumGate";
@@ -11,13 +12,27 @@ type Step = "pick" | "chat" | "synthesizing" | "review" | "done";
 type Message = { role: "user" | "assistant"; content: string };
 
 const THEMES = [
-  { key: "Mornings", label: "Mornings", description: "How she begins" },
-  { key: "Work", label: "Work", description: "What she's building" },
-  { key: "Relationships", label: "Relationships", description: "Who she chose" },
-  { key: "Body", label: "Body", description: "How she inhabits it" },
-  { key: "Voice", label: "Voice", description: "How she speaks" },
-  { key: "Values", label: "Values", description: "What she won't cross" },
+  { key: "Mornings", label: "Mornings", descKey: "begins" },
+  { key: "Work", label: "Work", descKey: "builds" },
+  { key: "Relationships", label: "Relationships", descKey: "chose" },
+  { key: "Body", label: "Body", descKey: "inhabits" },
+  { key: "Voice", label: "Voice", descKey: "speaks" },
+  { key: "Values", label: "Values", descKey: "wontcross" },
 ];
+
+function themeDesc(descKey: string, p: Pronouns): string {
+  const subj = P.subject(p);
+  const poss = P.possessive(p);
+  switch (descKey) {
+    case "begins":    return `How ${subj} begins`;
+    case "builds":    return `What ${subj}'s building`;
+    case "chose":     return `Who ${subj} chose`;
+    case "inhabits":  return `How ${subj} inhabits it`;
+    case "speaks":    return `How ${subj} speaks`;
+    case "wontcross": return `What ${poss} line is`;
+    default:          return descKey;
+  }
+}
 
 export default function PortraitSessionPage() {
   const router = useRouter();
@@ -176,13 +191,17 @@ export default function PortraitSessionPage() {
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
 
+  const p = (profile?.pronouns as Pronouns) ?? "they";
+  const subjCap = P.subject(p).charAt(0).toUpperCase() + P.subject(p).slice(1);
+  const isAre = P.subject(p) === "they" ? "are" : "is";
+
   if (!premium) return (
     <PaletteWrapper event="portrait">
       <AppShell>
         <PremiumGate
           feature="Portrait Sessions"
-          description="Guided deep-dives that add specificity to your portrait — her mornings, her work, her relationships, her voice."
-          example="I want to explore what her mornings look like. Does she rise before anyone else? What does she reach for first — silence, movement, words?"
+          description="Guided deep-dives that add specificity to your portrait — mornings, work, relationships, voice."
+          example="I want to explore what mornings look like. The first hour before anyone needs anything. What does that time hold?"
         />
       </AppShell>
     </PaletteWrapper>
@@ -216,7 +235,7 @@ export default function PortraitSessionPage() {
                   Portrait session
                 </p>
                 <p className="heading-editorial text-[1.3rem] leading-[1.45] text-ink dark:text-dark-text">
-                  Which part of her would you like to go deeper on?
+                  Which part of {P.object(p)} would you like to go deeper on?
                 </p>
               </div>
               <div className="space-y-0 border-t border-border dark:border-dark-border">
@@ -230,7 +249,7 @@ export default function PortraitSessionPage() {
                       {t.label}
                     </span>
                     <span className="text-xs text-ink-faint dark:text-dark-text-secondary">
-                      {t.description}
+                      {themeDesc(t.descKey, p)}
                     </span>
                   </button>
                 ))}
@@ -375,7 +394,7 @@ export default function PortraitSessionPage() {
                   Your portrait has evolved.
                 </p>
                 <p className="heading-editorial text-[1.3rem] leading-[1.45] text-ink dark:text-dark-text">
-                  She is becoming more specific.
+                  {subjCap} {isAre} becoming more specific.
                 </p>
                 <p className="text-[0.9375rem] leading-relaxed text-ink-secondary dark:text-dark-text-secondary">
                   The new layer has been added to your portrait. It will be there every time you come back.

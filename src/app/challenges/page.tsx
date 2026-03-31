@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
-import { getTodayString } from "@/lib/utils";
+import { getTodayString, P, type Pronouns } from "@/lib/utils";
 import { PremiumGate } from "@/components/ui/PremiumGate";
 
 type ChallengeDay = { day: number; action: string };
@@ -193,13 +193,15 @@ export default function ChallengesPage() {
 
   if (loading) return <div className="min-h-dvh bg-bone dark:bg-dark-bg" />;
 
+  const p = (profile?.pronouns as Pronouns) ?? "they";
+
   if (!premium) return (
     <PaletteWrapper event="base">
       <AppShell>
         <PremiumGate
           feature="Identity Challenges"
           description="7 or 21-day micro-challenges generated from your specific portrait — not generic, tied directly to who you said you were becoming."
-          example="Day 4 — Speak first in one room you usually stay quiet in. Notice what she would have said."
+          example={`Day 4 — Speak first in one room you usually stay quiet in. Notice what ${P.subject(p)} would have said.`}
         />
       </AppShell>
     </PaletteWrapper>
@@ -270,7 +272,7 @@ export default function ChallengesPage() {
               <div className="space-y-2">
                 <p className="text-xs text-ink-faint dark:text-dark-text-secondary leading-relaxed">
                   {duration === 7
-                    ? "Seven days is enough to feel the difference. A week of showing up as her."
+                    ? `Seven days is enough to feel the difference. A week of showing up as ${P.object(p)}.`
                     : "Twenty-one days builds a pattern. Long enough that it stops feeling like a challenge and starts feeling like a life."}
                 </p>
               </div>

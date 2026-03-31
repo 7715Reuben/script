@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { P, type Pronouns } from "@/lib/utils";
 import { AppShell } from "@/components/layout/AppShell";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
 import { PremiumGate } from "@/components/ui/PremiumGate";
@@ -122,10 +123,10 @@ export default function ScriptingSessionPage() {
             <div className="flex flex-col flex-1 animate-fade-up">
               <div className="space-y-2 mb-8">
                 <p className="heading-editorial text-[1.3rem] leading-[1.45] text-ink dark:text-dark-text">
-                  Write as her.
+                  Write as {P.object((profile?.pronouns as Pronouns) ?? "they")}.
                 </p>
                 <p className="text-[0.9375rem] leading-relaxed text-ink-secondary dark:text-dark-text-secondary">
-                  First person. Present tense. What is her life like right now? Don&apos;t think — just write.
+                  First person. Present tense. What is {P.possessive((profile?.pronouns as Pronouns) ?? "they")} life like right now? Don&apos;t think, just write.
                 </p>
               </div>
 
