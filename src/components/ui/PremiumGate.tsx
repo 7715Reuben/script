@@ -84,11 +84,11 @@ export function PremiumGate({ feature, description, example, onUnlock }: Premium
       {/* Pricing */}
       <div className="space-y-1">
         <p className="heading-editorial text-[1.8rem] leading-none text-ink dark:text-dark-text">
-          £7.99
+          €7.99
           <span className="text-[0.9rem] font-normal text-ink-secondary dark:text-dark-text-secondary"> / month</span>
         </p>
         <p className="text-xs text-ink-faint dark:text-dark-text-secondary tracking-wide">
-          or £49.99 / year — save 48%
+          or €49.99 / year — save 48%
         </p>
       </div>
 
