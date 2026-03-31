@@ -96,6 +96,7 @@ export default function ScriptingSessionPage() {
         feature="Scripting sessions"
         description="Write as your future self — first person, present tense. AI reflects back what felt genuinely true, what felt like performance, and what it noticed that isn't in your portrait yet."
         example="The part about the morning was real — specific, unhurried, like you'd already lived it. That's not something you invented; that's something you already know about yourself."
+        onUnlock={() => window.location.reload()}
       /></AppShell>
     </PaletteWrapper>
   );

@@ -197,6 +197,7 @@ export default function ConversationPage() {
         feature="Talk to Script"
         description="A conversation with an AI that has read your portrait, your check-ins, your journal — and speaks to you like the person you're becoming."
         example={CONVERSATION_EXAMPLE}
+        onUnlock={() => window.location.reload()}
       /></AppShell>
     </PaletteWrapper>
   );

@@ -40,11 +40,22 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
   const [savingPronouns, setSavingPronouns] = useState(false);
   const [portraitPublic, setPortraitPublic] = useState(profile.portrait_public ?? false);
   const [togglingPublic, setTogglingPublic] = useState(false);
+  const [isPremium, setIsPremium] = useState(profile.premium ?? true);
 
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/onboarding");
+  }
+
+  async function handleDevTogglePremium() {
+    const next = !isPremium;
+    setIsPremium(next);
+    await fetch("/api/premium", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: next ? "upgrade" : "downgrade" }),
+    });
   }
 
   const hasEveningCheckin = todaysCheckins.some((c) => c.type === "evening");
@@ -99,12 +110,20 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
               <p className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary">
                 {P.portrait(pronouns)}
               </p>
+              <div className="flex items-baseline gap-4">
+              <Link
+                href="/portrait-evolution"
+                className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+              >
+                Evolution
+              </Link>
               <Link
                 href="/portrait-session"
                 className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
               >
                 Deepen →
               </Link>
+            </div>
             </div>
             <PortraitDisplay portrait={profile.portrait} />
           </section>
@@ -232,6 +251,14 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
             className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
           >
             Sign out
+          </button>
+
+          {/* Dev tool — remove before launch */}
+          <button
+            onClick={handleDevTogglePremium}
+            className="text-[0.6rem] tracking-widest uppercase text-ink-faint/30 dark:text-dark-text-secondary/20 hover:text-ink-faint dark:hover:text-dark-text-secondary transition-colors"
+          >
+            Dev: {isPremium ? "disable" : "enable"} premium
           </button>
 
         </div>

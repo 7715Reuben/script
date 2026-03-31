@@ -202,6 +202,7 @@ export default function PortraitSessionPage() {
           feature="Portrait Sessions"
           description="Guided deep-dives that add specificity to your portrait — mornings, work, relationships, voice."
           example="I want to explore what mornings look like. The first hour before anyone needs anything. What does that time hold?"
+          onUnlock={() => window.location.reload()}
         />
       </AppShell>
     </PaletteWrapper>

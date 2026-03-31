@@ -202,6 +202,7 @@ export default function ChallengesPage() {
           feature="Identity Challenges"
           description="7 or 21-day micro-challenges generated from your specific portrait — not generic, tied directly to who you said you were becoming."
           example={`Day 4 — Speak first in one room you usually stay quiet in. Notice what ${P.subject(p)} would have said.`}
+          onUnlock={() => window.location.reload()}
         />
       </AppShell>
     </PaletteWrapper>
