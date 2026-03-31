@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { PortraitDisplay } from "@/components/ui/PortraitDisplay";
 import { PaletteWrapper } from "@/components/ui/PaletteWrapper";
+import { ShareCard } from "@/components/ui/ShareCard";
 import { createClient } from "@/lib/supabase";
 import type { Profile, Checkin, WeeklyReflection, Pronouns, Commitment, CommitmentLog } from "@/lib/supabase";
 
@@ -41,6 +42,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
   const [portraitPublic, setPortraitPublic] = useState(profile.portrait_public ?? false);
   const [togglingPublic, setTogglingPublic] = useState(false);
   const [isPremium, setIsPremium] = useState(profile.premium ?? true);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -101,6 +103,7 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
   }
 
   return (
+    <>
     <PaletteWrapper event={paletteEvent}>
       <AppShell>
         <div className="space-y-12 pb-8 animate-fade-up">
@@ -111,6 +114,12 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
                 {P.portrait(pronouns)}
               </p>
               <div className="flex items-baseline gap-4">
+              <button
+                onClick={() => setShowShareCard(true)}
+                className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
+              >
+                Share
+              </button>
               <Link
                 href="/portrait-evolution"
                 className="text-xs tracking-widest uppercase text-ink-faint dark:text-dark-text-secondary hover:text-ink-secondary dark:hover:text-dark-text-secondary transition-colors"
@@ -264,6 +273,15 @@ export function HomeClient({ profile, todaysCheckins, weeklyReflection, commitme
         </div>
       </AppShell>
     </PaletteWrapper>
+
+    {showShareCard && (
+      <ShareCard
+        portrait={profile.portrait}
+        tags={profile.portrait_tags ?? []}
+        onClose={() => setShowShareCard(false)}
+      />
+    )}
+    </>
   );
 }
 

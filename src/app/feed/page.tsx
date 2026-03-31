@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
+import { ShareCard } from "@/components/ui/ShareCard";
 
 type PublicPortrait = {
   id: string;
@@ -142,9 +143,8 @@ export default function FeedPage() {
         </div>
       </div>
 
-      {/* Share card overlay */}
       {shareCard && (
-        <ShareOverlay
+        <ShareCard
           portrait={shareCard.portrait}
           tags={shareCard.tags}
           onClose={() => setShareCard(null)}
@@ -201,69 +201,6 @@ function PortraitCard({
       >
         Share ↗
       </button>
-    </div>
-  );
-}
-
-function ShareOverlay({
-  portrait,
-  tags,
-  onClose,
-}: {
-  portrait: string;
-  tags: string[];
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-sm bg-[#F5F0EB] text-[#1a1a1a] p-8 space-y-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Share card — screenshot this */}
-        <div className="space-y-4">
-          {tags.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
-              {tags.map((tag) => (
-                <span key={tag} className="text-[0.6rem] tracking-widest uppercase text-[#8a8078]">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-          <p className="text-[0.9375rem] leading-relaxed text-[#1a1a1a] font-serif italic">
-            {portrait.slice(0, 400)}{portrait.length > 400 ? "…" : ""}
-          </p>
-          <p className="text-[0.6rem] tracking-widest uppercase text-[#8a8078] pt-2">
-            Script · script.app
-          </p>
-        </div>
-
-        <div className="space-y-2 pt-2">
-          <button
-            onClick={async () => {
-              if (navigator.share) {
-                await navigator.share({ text: portrait + "\n\n— script.app" });
-              } else {
-                await navigator.clipboard.writeText(portrait + "\n\n— script.app");
-                alert("Copied to clipboard");
-              }
-            }}
-            className="w-full py-3 bg-[#1a1a1a] text-[#F5F0EB] text-xs tracking-widest uppercase"
-          >
-            Share
-          </button>
-          <button
-            onClick={onClose}
-            className="w-full py-2 text-xs tracking-widest uppercase text-[#8a8078]"
-          >
-            Close
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
